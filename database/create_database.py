@@ -38,5 +38,5 @@ def create_database_def():
         if connection:
             connection.close()
             print('bd закрыли')
-
+create_database_def()
 

@@ -27,7 +27,7 @@ def start_ex(message):
     markup.add(btn4)
 
     bot.send_message(message.chat.id, text="Привет, {0.first_name}! Я тестовый бот для твоей статьи для habr.com".format(message.from_user), reply_markup=markup)
-    print('Я дошёл до конца')
+    print('Я дошёл до конца в создание кнопок ')
 
 bot.infinity_polling(skip_pending=True)
 
