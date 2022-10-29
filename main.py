@@ -1,4 +1,5 @@
 # https://github.com/eternnoir/pyTelegramBotAPI/blob/master/examples/custom_states.py
+
 import telebot  # telebot
 from telebot import types  # для указание типов
 from telebot import custom_filters
@@ -10,10 +11,7 @@ from database.add_table_values import *
 from psycopg2 import Error
 import logging
 import re
-<<<<<<< HEAD
-=======
-#типо для теста пишу
->>>>>>> 49ed015 (тест)
+# ща будем тянуть импорты
 
 
 def buttons_main_menu(message):  # просто создаю менюшку
