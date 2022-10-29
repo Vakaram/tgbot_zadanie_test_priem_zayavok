@@ -10,6 +10,10 @@ from database.add_table_values import *
 from psycopg2 import Error
 import logging
 import re
+<<<<<<< HEAD
+=======
+#типо для теста пишу
+>>>>>>> 49ed015 (тест)
 
 
 def buttons_main_menu(message):  # просто создаю менюшку

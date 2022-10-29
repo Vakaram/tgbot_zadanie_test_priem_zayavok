@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/tgbot_zadanie_test_priem_zayavok.iml" filepath="$PROJECT_DIR$/.idea/tgbot_zadanie_test_priem_zayavok.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/tg_bot_priyom_zayavok.iml" filepath="$PROJECT_DIR$/.idea/tg_bot_priyom_zayavok.iml" />
     </modules>
   </component>
 </project>
