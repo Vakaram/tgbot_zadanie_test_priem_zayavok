@@ -1,3 +1,3 @@
 #здесь будут подключения к боту
-telebot_test = '5746064454:AAGVsCZ73t9b6oeQ5n-bZ5l2JJo2VnA68jY'
+telebot_test = '5753262995:AAEp0pHHPC0VSv6gYbw24MRSl4sAnqaVfT0' # старый токекн
 
