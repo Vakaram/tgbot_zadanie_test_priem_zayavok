@@ -12,6 +12,7 @@ from psycopg2 import Error
 import logging
 import re
 # ща будем тянуть импорты
+#надо было сразу делать requarements сейчас сделаю
 
 
 def buttons_main_menu(message):  # просто создаю менюшку
