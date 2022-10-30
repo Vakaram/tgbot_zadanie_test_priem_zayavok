@@ -31,7 +31,7 @@ def buttons_main_menu(message):  # просто создаю менюшку
 
 def buttons_main_ostavitzayavka_podelitsa_nazad(message):  # просто создаю менюшку
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("📛 Оставить зявку")
+    btn1 = types.KeyboardButton("📛 Оставить заявку")
     btn2 = types.KeyboardButton("🔔 Поделиться предложением")
     markup.add(btn1, btn2)
     btn3 = types.KeyboardButton("🛅 Назад")
@@ -114,6 +114,9 @@ def start_ex(message):
         bot.delete_state(message.from_user.id,
                          message.chat.id)  # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
         buttons_main_menu(message)
+
+
+
     else:
         print('Я вижу после сравнения что его нет в бд')
         bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
@@ -196,12 +199,20 @@ def start_ex(message):
 #  до того как пользователь чтото пропишет и функции и добавление в базу неработуют
 
 
+
+
+class State_ostavit_zayavky(StatesGroup):
+    shag1 = State()
+    shag2 = State()
+    shag3 = State()
+    shag4 = State()
 @bot.message_handler()  # тут пошли ответы на кнопки
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
-         #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
+        #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
         buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
+        print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
     elif message.text == '🛅 Назад':
         buttons_main_menu(message)
     elif message.text == '📞 Связь':
@@ -211,44 +222,27 @@ def ostavit_zayavka(message):
         pass
     elif message.text == '☎ Полезные контакты':
         pass
-    elif message.text == '📛 Оставить зявку':
+    elif message.text == '📛 Оставить заявку':
         bot.send_message(message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
-        bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
+        bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1, message.chat.id)
         seychas_napisali = message.text
-        print(seychas_napisali)
+        print('Я ХЕНДЛЕРОМ который видет текст увидил Оставить заявку ')
     elif message.text == '🔔 Поделиться предложением':
         pass
 
 
-class State_ostavit_zayavky(StatesGroup):
-    shag1 = State()
-    shag2 = State()
-    shag3 = State()
-    shag4 = State()
-@bot.callback_query_handler(func=lambda call:True)
-def otveti_na_inline_knopki(call):
-    if call.message:
-        if call.data == 'perezvonite_mne':
-            bot.send_message(call.message.chat.id, ' Я вижу вы нажали перезвонить Вам!')
-        elif call.data == 'svaz_so_mnoy_v_chat_bote':
-            bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
-        elif call.data == 'nazad_iz_svarhites_so_mnoy':
-            bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
-            buttons_main_menu(call.message)
 
 
-
-
-#тут шаги для приёма заявки левое меню с инлайнами
 @bot.message_handler(state=State_ostavit_zayavky.shag1)
 def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
-    seychas_napisali = message.text
-    print(seychas_napisali)
+    print('Я ХЕНДЛЕРОМ который есть шаг1 ,я сюда дошёл ? ')
     bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
     adres = message.text
     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['adres'] = message.text
+#тут шаги для приёма заявки левое меню с инлайнами
+
 
 @bot.message_handler(state=State_ostavit_zayavky.shag2)
 def zayavka_photo_video_shag2(message):
@@ -273,7 +267,7 @@ def zayavka_shag3(message):
     bot.send_message(message.chat.id, 'Ваше обраение зарегестрированно', parse_mode='html')
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         sobral_zayavku = \
-               (f"name: {data['adres']}\n"
+              (f"name: {data['adres']}\n"
                f"phone: {data['photo_video']}\n"
                f"phone: {data['prichina_obrasheniya']}\n")
         print(sobral_zayavku)
@@ -282,9 +276,16 @@ def zayavka_shag3(message):
 
 
 
-
-
-
+@bot.callback_query_handler(func=lambda call:True)
+def otveti_na_inline_knopki(call):
+    if call.message:
+        if call.data == 'perezvonite_mne':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали перезвонить Вам!')
+        elif call.data == 'svaz_so_mnoy_v_chat_bote':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
+        elif call.data == 'nazad_iz_svarhites_so_mnoy':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
+            buttons_main_menu(call.message)
 
 
 
@@ -302,6 +303,23 @@ def zayavka_shag3(message):
 # @bot.message_handler(state=MyStates.svazatsa)
 # def ready_for_answer(message):
 #     bot.send_message(message.chat.id, "Я попал в состояние заявки")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
