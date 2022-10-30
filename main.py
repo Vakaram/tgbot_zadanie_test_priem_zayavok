@@ -48,11 +48,19 @@ def buttons_svazatsa(message):#создаю inline knopki для связать�
     btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
     btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
     markup.add(btn1, btn2, btn3)
+    bot.send_message(message.chat.id,
+                     text="Ты нажаль Связаться ну вот тебе и меню".format(
+                         message.from_user), reply_markup=markup)
 
-
-
-
-
+def ostavi_zayavka_shag1(message):#создаю inline knopki для связаться
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
+    btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
+    btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
+    markup.add(btn1, btn2, btn3)
+    bot.send_message(message.chat.id,
+                     text="Ты нажаль Связаться ну вот тебе и меню".format(
+                         message.from_user), reply_markup=markup)
 
 print('Бот запущен запустился')
 
@@ -60,19 +68,11 @@ state_storage = StateMemoryStorage()
 bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
 create_database_def()  # при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без
 
-
-
-
 class MyStates(StatesGroup):
     name = State()
     phone = State()
-    zayavka = State()
-
-
-
-
-
-
+    ostavit_zayavka = State()
+    svazatsa = State() #связаться это когда нажал кнопку главного меню
 
 @bot.message_handler(commands=['start'])
 def start_ex(message):
@@ -189,14 +189,30 @@ def start_ex(message):
         bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
         bot.add_custom_filter(custom_filters.IsDigitFilter())
 
-@bot.message_handler(commands=['📛 Заявка', '🛅 Назад'])  # тут пошли ответы на кнопки
+#ОЧЕНЬ ВАЖНО!
+#Я При регистрации прользователя тут
+# TODO: text если пользователь не зарегитрирован то хендлер который читает любые смс просто перехватывает введённые смс до того как пользователь чтото пропишет и функции и добавление в базу неработуют
+@bot.message_handler()  # тут пошли ответы на кнопки
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
-        bot.set_state(message.from_user.id, MyStates.zayavka, message.chat.id)
+         #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
         buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
     elif message.text == '🛅 Назад':
         buttons_main_menu(message)
+    elif message.text == '📞 Связь':
+        bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)
+        buttons_svazatsa(message)
+    elif message.text == '⚙ Настройки':
+        pass
+    elif message.text == '☎ Полезные контакты':
+        pass
+    elif message.text == '📛 Оставить зявку':
+        bot.set_state(message.from_user.id, MyStates.ostavit_zayavka, message.chat.id)
+
+    elif message.text == '🔔 Поделиться предложением':
+        pass
+
 
 
 @bot.callback_query_handler(func=lambda call:True)
@@ -211,9 +227,14 @@ def otveti_na_inline_knopki(call):
             buttons_main_menu(call.message)
 
 
-@bot.message_handler(state=MyStates.zayavka) #с
+@bot.message_handler(state=MyStates.ostavit_zayavka)
 def ready_for_answer(message):
     bot.send_message(message.chat.id, "Я попал в состояние заявки")
+
+@bot.message_handler(state=MyStates.svazatsa)
+def ready_for_answer(message):
+    bot.send_message(message.chat.id, "Я попал в состояние заявки")
+
 
 
 bot.infinity_polling(skip_pending=True)
