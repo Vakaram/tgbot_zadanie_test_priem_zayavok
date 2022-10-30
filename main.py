@@ -42,17 +42,36 @@ def buttons_main_ostavitzayavka_podelitsa_nazad(message):  # просто соз
     print('Я дошёл до конца в создание кнопок ')
 
 
-print('Я запустился')
+def buttons_svazatsa(message):#создаю inline knopki для связаться
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
+    btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
+    btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
+    markup.add(btn1, btn2, btn3)
+
+
+
+
+
+
+print('Бот запущен запустился')
 
 state_storage = StateMemoryStorage()
 bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
 create_database_def()  # при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без
 
 
+
+
 class MyStates(StatesGroup):
     name = State()
     phone = State()
     zayavka = State()
+
+
+
+
+
 
 
 @bot.message_handler(commands=['start'])
@@ -100,8 +119,7 @@ def start_ex(message):
         bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
         bot.send_message(message.chat.id, 'Введите имя')
 
-        @bot.message_handler(state="*", commands=[
-            '/cancel'])  # отмена любого состояния (типо не вводить, выйти при написаниее cancel
+        @bot.message_handler(state="*", commands=['/cancel'])  # отмена любого состояния (типо не вводить, выйти при написаниее cancel
         def any_state(message):
             bot.send_message(message.chat.id, "Отмена регистрации, для регистрации нажмите введите /start ")
             bot.delete_state(message.from_user.id, message.chat.id)
@@ -110,8 +128,7 @@ def start_ex(message):
         def name_get(message):
             regular_phone = r'^[А-Я]{1}[а-я]{1,100}\s[А-Я]{1}[а-я]{1,100}$'
             name_user = message.text
-            if re.match(regular_phone,
-                        name_user) is not None:  # в тру меняем состояние на след дописываем данные в хранилище
+            if re.match(regular_phone, name_user) is not None:  # в тру меняем состояние на след дописываем данные в хранилище
                 bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
                 bot.send_message(message.chat.id, 'Телефон:', parse_mode='html')
                 with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
@@ -172,26 +189,31 @@ def start_ex(message):
         bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
         bot.add_custom_filter(custom_filters.IsDigitFilter())
 
-
-@bot.message_handler()  # тут пошли ответы на кнопки
+@bot.message_handler(commands=['📛 Заявка', '🛅 Назад'])  # тут пошли ответы на кнопки
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
         bot.set_state(message.from_user.id, MyStates.zayavka, message.chat.id)
+        bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
         buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
     elif message.text == '🛅 Назад':
         buttons_main_menu(message)
+
+
+@bot.callback_query_handler(func=lambda call:True)
+def otveti_na_inline_knopki(call):
+    if call.message:
+        if call.data == 'perezvonite_mne':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали перезвонить Вам!')
+        elif call.data == 'svaz_so_mnoy_v_chat_bote':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
+        elif call.data == 'nazad_iz_svarhites_so_mnoy':
+            bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
+            buttons_main_menu(call.message)
+
 
 @bot.message_handler(state=MyStates.zayavka) #с
 def ready_for_answer(message):
     bot.send_message(message.chat.id, "Я попал в состояние заявки")
 
-
-
-#
-# btn1 = types.KeyboardButton("📛 Заявка")
-#     btn = types.KeyboardButton("📞 Связь")
-#     markup.add(btn1, btn2)
-#     btn3 = types.KeyboardButton("⚙ Настройки")
-#     btn4 = types.KeyboardButton("☎ Полезные контакты")
 
 bot.infinity_polling(skip_pending=True)
