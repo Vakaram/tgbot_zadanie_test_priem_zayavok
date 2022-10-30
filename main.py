@@ -71,8 +71,8 @@ create_database_def()  # при первом запуске подключаем
 class MyStates(StatesGroup):
     name = State()
     phone = State()
-    ostavit_zayavka = State()
-    svazatsa = State() #связаться это когда нажал кнопку главного меню
+    # ostavit_zayavka = State()
+    # svazatsa = State() #связаться это когда нажал кнопку главного меню
 
 @bot.message_handler(commands=['start'])
 def start_ex(message):
@@ -189,9 +189,13 @@ def start_ex(message):
         bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
         bot.add_custom_filter(custom_filters.IsDigitFilter())
 
+
 #ОЧЕНЬ ВАЖНО!
 #Я При регистрации прользователя тут
-# TODO: text если пользователь не зарегитрирован то хендлер который читает любые смс просто перехватывает введённые смс до того как пользователь чтото пропишет и функции и добавление в базу неработуют
+# TODO: text если пользователь не зарегитрирован то хендлер который читает любые смс просто перехватывает введённые смс
+#  до того как пользователь чтото пропишет и функции и добавление в базу неработуют
+
+
 @bot.message_handler()  # тут пошли ответы на кнопки
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
@@ -201,20 +205,26 @@ def ostavit_zayavka(message):
     elif message.text == '🛅 Назад':
         buttons_main_menu(message)
     elif message.text == '📞 Связь':
-        bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)
+        # bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)#тут поменяем состояния всё ок
         buttons_svazatsa(message)
     elif message.text == '⚙ Настройки':
         pass
     elif message.text == '☎ Полезные контакты':
         pass
     elif message.text == '📛 Оставить зявку':
-        bot.set_state(message.from_user.id, MyStates.ostavit_zayavka, message.chat.id)
-
+        bot.send_message(message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
+        bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
+        seychas_napisali = message.text
+        print(seychas_napisali)
     elif message.text == '🔔 Поделиться предложением':
         pass
 
 
-
+class State_ostavit_zayavky(StatesGroup):
+    shag1 = State()
+    shag2 = State()
+    shag3 = State()
+    shag4 = State()
 @bot.callback_query_handler(func=lambda call:True)
 def otveti_na_inline_knopki(call):
     if call.message:
@@ -227,13 +237,71 @@ def otveti_na_inline_knopki(call):
             buttons_main_menu(call.message)
 
 
-@bot.message_handler(state=MyStates.ostavit_zayavka)
-def ready_for_answer(message):
-    bot.send_message(message.chat.id, "Я попал в состояние заявки")
 
-@bot.message_handler(state=MyStates.svazatsa)
-def ready_for_answer(message):
-    bot.send_message(message.chat.id, "Я попал в состояние заявки")
+
+#тут шаги для приёма заявки левое меню с инлайнами
+@bot.message_handler(state=State_ostavit_zayavky.shag1)
+def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
+    seychas_napisali = message.text
+    print(seychas_napisali)
+    bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
+    adres = message.text
+    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['adres'] = message.text
+
+@bot.message_handler(state=State_ostavit_zayavky.shag2)
+def zayavka_photo_video_shag2(message):
+    seychas_napisali = message.text
+    print(seychas_napisali)
+    bot.send_message(message.chat.id, 'Прикрепите фотку или видео ', parse_mode='html')
+    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        data['photo_video'] = message.text
+@bot.message_handler(state=State_ostavit_zayavky.shag3)
+def zayavka_shag3(message):
+    seychas_napisali = message.text
+    print(seychas_napisali)
+    bot.send_message(message.chat.id, 'Напишите причину вашего обращения,опишите проблему', parse_mode='html')
+    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag4,message.chat.id)
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        data['prichina_obrasheniya'] = message.text
+@bot.message_handler(state=State_ostavit_zayavky.shag4)
+def zayavka_shag3(message):
+    seychas_napisali = message.text
+    print(seychas_napisali)
+    bot.send_message(message.chat.id, 'Ваше обраение зарегестрированно', parse_mode='html')
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        sobral_zayavku = \
+               (f"name: {data['adres']}\n"
+               f"phone: {data['photo_video']}\n"
+               f"phone: {data['prichina_obrasheniya']}\n")
+        print(sobral_zayavku)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @bot.message_handler(state=MyStates.svazatsa)
+# def ready_for_answer(message):
+#     bot.send_message(message.chat.id, "Я попал в состояние заявки")
 
 
 
