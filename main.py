@@ -111,8 +111,7 @@ def start_ex(message):
     # проверил пользователя теперь, если его нет предлагаю зарегаться и как успешно выдам ему клавиатуру, а если он есть, и просто удалил когда то чат, то выдаю кнопки
     if zapros_bd() is True:
         print('Я вижу после сравнения что он есть в бд')
-        bot.delete_state(message.from_user.id,
-                         message.chat.id)  # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
+        bot.delete_state(message.from_user.id,message.chat.id)  # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
         buttons_main_menu(message)
 
 
@@ -223,10 +222,12 @@ def ostavit_zayavka(message):
     elif message.text == '☎ Полезные контакты':
         pass
     elif message.text == '📛 Оставить заявку':
+        # bot.delete_state(message.from_user.id, message.chat.id)
         bot.send_message(message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
-        bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1, message.chat.id)
+        bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
+        # bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1, message.chat.id)
         seychas_napisali = message.text
-        print('Я ХЕНДЛЕРОМ который видет текст увидил Оставить заявку ')
+        print('Я ХЕНДЛЕРОМ который видит текст увидел Оставить заявку ')
     elif message.text == '🔔 Поделиться предложением':
         pass
 

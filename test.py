@@ -68,49 +68,90 @@
 # bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
 # create_database_def()  # при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без
 #
+# # class MyStates(StatesGroup):
+# #     name = State()
+# #     phone = State()
+# #     # ostavit_zayavka = State()
+#     # svazatsa = State() #связаться это когда нажал кнопку главного меню
 #
 #
-# @bot.message_handler(commands=['start'])
-# def start_ex(message):
-#     print('Я вижу после сравнения что его нет в бд')
-#     bot.set_state(message.from_user.id, State_Ostavit_Zayavky.shag1, message.chat.id)
-#     bot.send_message(message.chat.id, 'ЗАПРОС ИНФЫ ')
-# class State_Ostavit_Zayavky(StatesGroup):
+# class State_ostavit_zayavky(StatesGroup):
 #     shag1 = State()
 #     shag2 = State()
 #     shag3 = State()
 #     shag4 = State()
+# @bot.message_handler()
+#
+# @bot.message_handler(commands=['start'])
+# def start_ex(message):
+#     # bot.delete_state(message.from_user.id,message.chat.id)  # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
+#     bot.send_message(message.chat.id, 'Я в старте в предлагаю боту пойти в состояние  1  ')
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1,message.chat.id)
+#     # buttons_main_menu(message)
+#
+#
+# bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
+# bot.add_custom_filter(custom_filters.IsDigitFilter())
 #
 #
 #
-# @bot.message_handler(state=State_Ostavit_Zayavky.shag1)
+#  # тут пошли ответы на кнопки
+# def ostavit_zayavka(message):
+#     if message.text == '📛 Заявка':
+#         #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
+#         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
+#         buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
+#         print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
+#     elif message.text == '🛅 Назад':
+#         buttons_main_menu(message)
+#     elif message.text == '📞 Связь':
+#         # bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)#тут поменяем состояния всё ок
+#         buttons_svazatsa(message)
+#     elif message.text == '⚙ Настройки':
+#         pass
+#     elif message.text == '☎ Полезные контакты':
+#         pass
+#     elif message.text == '📛 Оставить заявку':
+#         # # bot.delete_state(message.from_user.id, message.chat.id)
+#         # bot.send_message(message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
+#         # # bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
+#         # bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1, message.chat.id)
+#         # seychas_napisali = message.text
+#         print('Я ХЕНДЛЕРОМ который видит текст увидел Оставить заявку ')
+#     elif message.text == '🔔 Поделиться предложением':
+#         pass
+#
+#
+#
+#
+# @bot.message_handler(state=State_ostavit_zayavky.shag1)
 # def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
 #     print('Я ХЕНДЛЕРОМ который есть шаг1 ,я сюда дошёл ? ')
 #     bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
 #     adres = message.text
-#     bot.set_state(message.from_user.id, State_Ostavit_Zayavky.shag2, message.chat.id)
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
 #     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-#             data['adres'] = message.text
+#         data['adres'] = message.text
 # #тут шаги для приёма заявки левое меню с инлайнами
 #
 #
-# @bot.message_handler(state=State_Ostavit_Zayavky.shag2)
+# @bot.message_handler(state=State_ostavit_zayavky.shag2)
 # def zayavka_photo_video_shag2(message):
 #     seychas_napisali = message.text
 #     print(seychas_napisali)
 #     bot.send_message(message.chat.id, 'Прикрепите фотку или видео ', parse_mode='html')
-#     bot.set_state(message.from_user.id, State_Ostavit_Zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
 #     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
 #         data['photo_video'] = message.text
-# @bot.message_handler(state=State_Ostavit_Zayavky.shag3)
+# @bot.message_handler(state=State_ostavit_zayavky.shag3)
 # def zayavka_shag3(message):
 #     seychas_napisali = message.text
 #     print(seychas_napisali)
 #     bot.send_message(message.chat.id, 'Напишите причину вашего обращения,опишите проблему', parse_mode='html')
-#     bot.set_state(message.from_user.id, State_Ostavit_Zayavky.shag4, message.chat.id)
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag4,message.chat.id)
 #     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
 #         data['prichina_obrasheniya'] = message.text
-# @bot.message_handler(state=State_Ostavit_Zayavky.shag4)
+# @bot.message_handler(state=State_ostavit_zayavky.shag4)
 # def zayavka_shag3(message):
 #     seychas_napisali = message.text
 #     print(seychas_napisali)
@@ -122,14 +163,30 @@
 #                f"phone: {data['prichina_obrasheniya']}\n")
 #         print(sobral_zayavku)
 #
-#     bot.delete_state(message.from_user.id, message.chat.id)
+#
+#
+# @bot.callback_query_handler(func=lambda call:True)
+# def otveti_na_inline_knopki(call):
+#     if call.message:
+#         if call.data == 'perezvonite_mne':
+#             # bot.send_message(call.message.chat.id, ' Я вижу вы нажали перезвонить Вам!')
+#             # bot.delete_state(message.from_user.id, message.chat.id)
+#             bot.send_message(call.message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
+#             # bot.set_state(call.message.from_user.id, MyStates.name, call.message.chat.id)
+#             # bot.set_state(call.message.from_user.id, State_ostavit_zayavky.shag1, call.message.chat.id)
+#             seychas_napisali = call.message.text
+#             print('Я ХЕНДЛЕРОМ который видит текст увидел Оставить заявку ')
+#         elif call.data == 'svaz_so_mnoy_v_chat_bote':
+#             bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
+#         elif call.data == 'nazad_iz_svarhites_so_mnoy':
+#             bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
+#             buttons_main_menu(call.message)
 #
 #
 #
+#         # TODO: Для этой части кода ,  поправить красивый текст
 #
 #
-# bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
-# bot.add_custom_filter(custom_filters.IsDigitFilter())
 #
 #
 #
@@ -157,3 +214,103 @@
 #
 #
 # bot.infinity_polling(skip_pending=True)
+
+
+
+
+import telebot  # telebot
+
+from telebot import custom_filters
+from telebot.handler_backends import State, StatesGroup  # States
+
+# States storage
+from telebot.storage import StateMemoryStorage
+
+from create_bot import telebot_test
+
+# Now, you can pass storage to bot.
+state_storage = StateMemoryStorage()  # you can init here another storage
+
+bot = telebot.TeleBot(telebot_test,
+                      state_storage=state_storage)
+
+
+# States group.
+class MyStates(StatesGroup):
+    # Just name variables differently
+    name = State()  # creating instances of State class is enough from now
+    surname = State()
+    age = State()
+
+
+@bot.message_handler(commands=['start'])
+def start_ex(message):
+    """
+    Start command. Here we are starting state
+    """
+    bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
+    bot.send_message(message.chat.id, 'Hi, write me a name')
+
+
+# Any state
+@bot.message_handler(state="*", commands=['cancel'])
+def any_state(message):
+    """
+    Cancel state
+    """
+    bot.send_message(message.chat.id, "Your state was cancelled.")
+    bot.delete_state(message.from_user.id, message.chat.id)
+
+
+@bot.message_handler(state=MyStates.name)
+def name_get(message):
+    """
+    State 1. Will process when user's state is MyStates.name.
+    """
+    bot.send_message(message.chat.id, 'Now write me a surname')
+    bot.set_state(message.from_user.id, MyStates.surname, message.chat.id)
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        data['name'] = message.text
+
+
+@bot.message_handler(state=MyStates.surname)
+def ask_age(message):
+    """
+    State 2. Will process when user's state is MyStates.surname.
+    """
+    bot.send_message(message.chat.id, "What is your age?")
+    bot.set_state(message.from_user.id, MyStates.age, message.chat.id)
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        data['surname'] = message.text
+
+
+# result
+@bot.message_handler(state=MyStates.age, is_digit=True)
+def ready_for_answer(message):
+    """
+    State 3. Will process when user's state is MyStates.age.
+    """
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        msg = ("Ready, take a look:\n<b>"
+               f"Name: {data['name']}\n"
+               f"Surname: {data['surname']}\n"
+               f"Age: {message.text}</b>")
+        bot.send_message(message.chat.id, msg, parse_mode="html")
+    bot.delete_state(message.from_user.id, message.chat.id)
+
+
+# incorrect number
+@bot.message_handler(state=MyStates.age, is_digit=False)
+def age_incorrect(message):
+    """
+    Wrong response for MyStates.age
+    """
+    bot.send_message(message.chat.id, 'Looks like you are submitting a string in the field age. Please enter a number')
+
+
+# register filters
+
+bot.add_custom_filter(custom_filters.StateFilter(bot))
+bot.add_custom_filter(custom_filters.IsDigitFilter())
+
+bot.infinity_polling(skip_pending=True)
