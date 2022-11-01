@@ -12,7 +12,7 @@ def zapros_info_in_table():
                                       database="tg_bot_priyom_zayavok")
         connection.autocommit = True  # постояяно сам коммитит данные
         cursor = connection.cursor()
-        postgreSQL_select_Query = "select id_tg from registration_tg_users" #менять таблицу тут
+        postgreSQL_select_Query = "select * from registration_tg_users" #менять таблицу тут
 
         cursor.execute(postgreSQL_select_Query)
         print("Selecting rows from mobile table using cursor.fetchall")
@@ -22,8 +22,8 @@ def zapros_info_in_table():
 
         for row in mobile_records:
             print("Id = ", row[0], )
-            # print("Name = ", row[1])
-            # print("Phone  = ", row[2], "\n")
+            print("Name = ", row[1])
+            print("Phone  = ", row[2], "\n")
 
     except (Exception, psycopg2.Error) as error:
         print("Error while fetching data from PostgreSQL", error)

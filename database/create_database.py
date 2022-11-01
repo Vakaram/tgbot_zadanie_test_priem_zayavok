@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import Error
 
-def create_database_def():
+def create_database_all():
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user="postgres",
@@ -19,18 +19,17 @@ def create_database_def():
         # Распечатать сведения о PostgreSQL
         print("Информация о сервере PostgreSQL")
         print(connection.get_dsn_parameters(), "\n")
-
         with connection.cursor() as cursor:  # создание таблицы если её нет
             cursor.execute(
                 """
                 CREATE TABLE registration_tg_users(
-                    id_tg int PRIMARY KEY,
-                    all_name varchar(150) NOT NULL,
+                    tg_id int PRIMARY KEY,
+                    name_surname varchar(150) NOT NULL,
                     phone varchar(20)
                     );
                 """
             )
-            print('[INFO] Таблица создана')
+            print('[INFO] Таблица registration_tg_users создана')
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
@@ -38,5 +37,3 @@ def create_database_def():
         if connection:
             connection.close()
             print('bd закрыли')
-# create_database_def()
-
