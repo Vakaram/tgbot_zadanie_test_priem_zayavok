@@ -26,11 +26,10 @@ class PostgreSQL:
 
     def add_phone(self, tg_id, phone): #вставляет значения к соответствующему tg id
         with self.connection.cursor() as cursor:
-            cursor.execute("""
-                        Update registration_tg_users phone = '%s' WHERE tg_id = '%s'
-                        VALUES(%s, %s,)
-                        """,
-                           (phone, tg_id,))
+            sql ="""    
+            UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
+                 """
+            cursor.execute(sql,(phone, tg_id,))
             self.connection.commit()
         print('Телефон соответствует я добавил его в бд')
 
