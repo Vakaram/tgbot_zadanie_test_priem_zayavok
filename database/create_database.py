@@ -1,39 +1,73 @@
-import psycopg2
 from psycopg2 import Error
+import psycopg2
+class Create_Database_All:
+    def __init__(self, host, port, user, password, database):
+        try:
+            self.connection = psycopg2.connect(user=user,
+                                               password=password,
+                                               host=host,
+                                               port=port,
+                                               database=database
+                                               )
+            print('Я подключился к бд')
+        except (Exception, Error) as error:
+            print("Ошибка при работе с PostgreSQL", error)
 
-def create_database_all():
-    try:
-        # Подключение к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      # пароль, который указали при установке PostgreSQL
-                                      password="admin",
-                                      host="127.0.0.1",
-                                      port="5432",
-                                      database="tg_bot_priyom_zayavok")
-        connection.autocommit = True  # постояяно сам коммитит данные
-        with connection.cursor() as cursor:  # просто запрос инфы о подключение
-            cursor.execute(
-                "SELECT version();"
-            )
-            print(f'Server version: {cursor.fetchone()}')
-        # Распечатать сведения о PostgreSQL
-        print("Информация о сервере PostgreSQL")
-        print(connection.get_dsn_parameters(), "\n")
-        with connection.cursor() as cursor:  # создание таблицы если её нет
-            cursor.execute(
-                """
-                CREATE TABLE registration_tg_users(
-                    tg_id int PRIMARY KEY,
-                    name_surname varchar(150) NOT NULL,
-                    phone varchar(20)
-                    );
-                """
-            )
-            print('[INFO] Таблица registration_tg_users создана')
+    def create_table_registration_tg_users(self):
+        try:
+            with self.connection.cursor() as cursor:  # создание таблицы если её нет
+                cursor.execute(
+                    """
+                    CREATE TABLE registration_tg_users(
+                        tg_id int PRIMARY KEY,
+                        name_surname varchar(150) NOT NULL,
+                        phone varchar(20)
+                        );
+                    """
+                )
+                self.connection.commit() #обязательная штука даже в with
+                print('[INFO] Таблица registration_tg_users создана')
+        except (Exception, Error) as error:
+            print("Ошибка при работе с PostgreSQL с registration_tg_users" , error)
 
-    except (Exception, Error) as error:
-        print("Ошибка при работе с PostgreSQL", error)
-    finally:
-        if connection:
-            connection.close()
-            print('bd закрыли')
+    def create_table_zayavka_tg_users(self):
+        try:
+            with self.connection.cursor() as cursor:  # создание таблицы если её нет
+                cursor.execute(
+                    """
+                    CREATE TABLE zayavka_tg_users(
+                        tg_id int ,
+                        date_create timestamp NOT NULL default CURRENT_TIMESTAMP,
+                        location varchar(150),
+                        photo_or_video varchar(150),
+                        description varchar (400),
+                        FOREIGN KEY (tg_id) REFERENCES registration_tg_users (tg_id)
+                        );
+                    """
+                )
+                self.connection.commit() #обязательная штука даже в with
+                print('[INFO] Таблица zayavka_tg_users создана')
+        except (Exception, Error) as error:
+            print("Ошибка при работе с PostgreSQL zayavka_tg_users ", error)
+
+
+
+
+
+host = '127.0.0.1'
+port = "5432"
+user = "postgres"
+password = "admin"
+database = "tg_bot_priyom_zayavok"
+
+create_database_all = Create_Database_All(host=host, port=port, user=user, password=password, database=database)
+
+
+
+
+
+
+
+
+
+

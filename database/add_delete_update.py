@@ -24,12 +24,12 @@ class PostgreSQL:
             self.connection.commit()
             print('Сохранил имя человека в БД')
 
-    def add_phone(self, tg_id, phone): #вставляет значения к соответствующему tg id
+    def add_phone(self, tg_id, phone):  # вставляет значения к соответствующему tg id
         with self.connection.cursor() as cursor:
-            sql ="""    
+            sql = """    
             UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
                  """
-            cursor.execute(sql,(phone, tg_id,))
+            cursor.execute(sql, (phone, tg_id,))
             self.connection.commit()
         print('Телефон соответствует я добавил его в бд')
 
@@ -37,7 +37,7 @@ class PostgreSQL:
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT tg_id FROM registration_tg_users WHERE tg_id = %s",
-                    (tg_id,)
+                (tg_id,)
             )
             self.connection.commit()
             proverka = cursor.fetchall()
@@ -48,7 +48,6 @@ class PostgreSQL:
             else:
                 print('Пользователя нет в БД вижу это по базе')
                 return None
-
 
     #
     # def del_user(self, id):
