@@ -7,6 +7,7 @@ from telebot import types  # для указание типов
 from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
+from buttons.buttons import buttons_main_menu
 from create_bot import telebot_test
 from database.add_delete_update import PostgreSQL, bd_add_delete_update
 from database.create_database import create_database_all
@@ -18,58 +19,63 @@ import re
 #надо было сразу делать requarements сейчас сделаю
 
 
-def buttons_main_menu(message):  # просто создаю менюшку
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("📛 Заявка")
-    btn2 = types.KeyboardButton("📞 Связь")
-    markup.add(btn1, btn2)
-    btn3 = types.KeyboardButton("⚙ Настройки")
-    btn4 = types.KeyboardButton("☎ Полезные контакты")
-    markup.add(btn3)
-    markup.add(btn4)
-    bot.send_message(message.chat.id,
-                     text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
-                         message.from_user), reply_markup=markup)
-    print('Я дошёл до конца в создание кнопок ')
-
-def buttons_main_ostavitzayavka_podelitsa_nazad(message):  # просто создаю менюшку
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("📛 Оставить заявку")
-    btn2 = types.KeyboardButton("🔔 Поделиться предложением")
-    markup.add(btn1, btn2)
-    btn3 = types.KeyboardButton("🛅 Назад")
-    markup.add(btn3)
-    bot.send_message(message.chat.id,
-                     text="Это я в стадии оставить заявку или предложить и назад".format(
-                         message.from_user), reply_markup=markup)
-    print('Я дошёл до конца в создание кнопок ')
 
 
-def buttons_svazatsa(message):#создаю inline knopki для связаться
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
-    btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
-    btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
-    markup.add(btn1, btn2, btn3)
-    bot.send_message(message.chat.id,
-                     text="Ты нажаль Связаться ну вот тебе и меню".format(
-                         message.from_user), reply_markup=markup)
-
-def ostavi_zayavka_shag1(message):#создаю inline knopki для связаться
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
-    btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
-    btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
-    markup.add(btn1, btn2, btn3)
-    bot.send_message(message.chat.id,
-                     text="Ты нажаль Связаться ну вот тебе и меню".format(
-                         message.from_user), reply_markup=markup)
+# def buttons_main_menu(message):  # просто создаю менюшку
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     btn1 = types.KeyboardButton("📛 Заявка")
+#     btn2 = types.KeyboardButton("📞 Связь")
+#     markup.add(btn1, btn2)
+#     btn3 = types.KeyboardButton("⚙ Настройки")
+#     btn4 = types.KeyboardButton("☎ Полезные контакты")
+#     markup.add(btn3)
+#     markup.add(btn4)
+#     bot.send_message(message.chat.id,
+#                      text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+#                          message.from_user), reply_markup=markup)
+#     print('Я дошёл до конца в создание кнопок ')
+#
+# def buttons_main_ostavitzayavka_podelitsa_nazad(message):  # просто создаю менюшку
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     btn1 = types.KeyboardButton("📛 Оставить заявку")
+#     btn2 = types.KeyboardButton("🔔 Поделиться предложением")
+#     markup.add(btn1, btn2)
+#     btn3 = types.KeyboardButton("🛅 Назад")
+#     markup.add(btn3)
+#     bot.send_message(message.chat.id,
+#                      text="Это я в стадии оставить заявку или предложить и назад".format(
+#                          message.from_user), reply_markup=markup)
+#     print('Я дошёл до конца в создание кнопок ')
+#
+#
+# def buttons_svazatsa(message):#создаю inline knopki для связаться
+#     markup = types.InlineKeyboardMarkup(row_width=1)
+#     btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
+#     btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
+#     btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
+#     markup.add(btn1, btn2, btn3)
+#     bot.send_message(message.chat.id,
+#                      text="Ты нажаль Связаться ну вот тебе и меню".format(
+#                          message.from_user), reply_markup=markup)
+#
+# def ostavi_zayavka_shag1(message):#создаю inline knopki для связаться
+#     markup = types.InlineKeyboardMarkup(row_width=1)
+#     btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='perezvonite_mne')
+#     btn2 = types.InlineKeyboardButton("Свяжитесь со мнйо в чат-боте", callback_data='svaz_so_mnoy_v_chat_bote')
+#     btn3 = types.InlineKeyboardButton("Назад", callback_data='nazad_iz_svarhites_so_mnoy')
+#     markup.add(btn1, btn2, btn3)
+#     bot.send_message(message.chat.id,
+#                      text="Ты нажаль Связаться ну вот тебе и меню".format(
+#                          message.from_user), reply_markup=markup)
 
 print('Бот запущен запустился')
 
 state_storage = StateMemoryStorage()
 bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
 create_database_all()  # при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без
+
+#инициализирую класс, кнопок для бота передавая ему (bot)
+
 
 class MyStates(StatesGroup):
     name = State()
@@ -78,11 +84,13 @@ class MyStates(StatesGroup):
 
 @bot.message_handler(commands=['start'])
 def start_ex(message):
-    tg_id = message.id
+    tg_id = message.from_user.id
     if bd_add_delete_update.check_in_bd(tg_id) is True:                    # проверил пользователя теперь, если его нет предлагаю зарегаться и как успешно выдам ему клавиатуру, а если он есть, и просто удалил когда то чат, то выдаю кнопки
         print('Я вижу после сравнения что он есть в бд')
         bot.delete_state(message.from_user.id,message.chat.id)              # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
-        buttons_main_menu(message)
+        #ниже вызываем отпрвку смс в markup передаём нашу функцию с кнопками
+        bot.send_message(message.chat.id,text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                            message.from_user), reply_markup=buttons_main_menu())
     else:
         print('Я вижу после сравнения что его нет в бд')
         bot.send_message(message.chat.id, 'Введите имя')
@@ -116,24 +124,13 @@ def ready_for_answer(message):
     if re.match(regular_phone, phone) is not None:
         bd_add_delete_update.add_phone(tg_id,phone)
         bot.delete_state(message.from_user.id, message.chat.id)
-        buttons_main_menu(message)  # если всё верно ввёл то я могу показать клавиатуру
+        bot.send_message(message.chat.id, #создал меню в общем.
+                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                             message.from_user), reply_markup=buttons_main_menu())
     else:
         bot.send_message(message.chat.id, 'Не подходит телефон надо +7 и всего 11 цифр:', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         print('Не подходит телефон ')
-
-# TODO: Для этой части кода ,  поправить красивый текст
-bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
-bot.add_custom_filter(custom_filters.IsDigitFilter())
-
-
-#ОЧЕНЬ ВАЖНО!
-#Я При регистрации прользователя тут
-# TODO: text если пользователь не зарегитрирован то хендлер который читает любые смс просто перехватывает введённые смс
-#  до того как пользователь чтото пропишет и функции и добавление в базу неработуют
-
-
-
 
 class State_ostavit_zayavky(StatesGroup):
     shag1 = State()
@@ -145,13 +142,14 @@ def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
         #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
-        buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
+        # buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
         print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
     elif message.text == '🛅 Назад':
         buttons_main_menu(message)
     elif message.text == '📞 Связь':
+        pass
         # bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)#тут поменяем состояния всё ок
-        buttons_svazatsa(message)
+        # buttons_svazatsa(message)
     elif message.text == '⚙ Настройки':
         pass
     elif message.text == '☎ Полезные контакты':
@@ -209,9 +207,6 @@ def zayavka_shag3(message):
         print(sobral_zayavku)
 
 
-
-
-
 @bot.callback_query_handler(func=lambda call:True)
 def otveti_na_inline_knopki(call):
     if call.message:
@@ -225,17 +220,6 @@ def otveti_na_inline_knopki(call):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 # @bot.message_handler(state=MyStates.svazatsa)
 # def ready_for_answer(message):
 #     bot.send_message(message.chat.id, "Я попал в состояние заявки")
@@ -243,20 +227,7 @@ def otveti_na_inline_knopki(call):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bot.add_custom_filter(custom_filters.StateFilter(bot))  # хм чтоже делают это два фильтра надобы узнать
+bot.add_custom_filter(custom_filters.IsDigitFilter())
 
 bot.infinity_polling(skip_pending=True)
