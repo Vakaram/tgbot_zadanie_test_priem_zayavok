@@ -7,7 +7,7 @@ from telebot import types  # для указание типов
 from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
-from buttons.buttons import buttons_main_menu
+from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa
 from create_bot import telebot_test
 from database.add_delete_update import PostgreSQL, bd_add_delete_update
 from database.create_database import create_database_all
@@ -132,24 +132,23 @@ def ready_for_answer(message):
         bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         print('Не подходит телефон ')
 
-class State_ostavit_zayavky(StatesGroup):
-    shag1 = State()
-    shag2 = State()
-    shag3 = State()
-    shag4 = State()
 @bot.message_handler()  # тут пошли ответы на кнопки
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
-        #тут статус не меняем пока не надо , а в кнопке Оставить заявку надо
         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
-        # buttons_main_ostavitzayavka_podelitsa_nazad(message)  # создаём новую клаву для этого меню
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Вы нажали кнопку заявка, должно появится новое меню. ".format(
+                             message.from_user), reply_markup=buttons_main_ostavitzayavka_podelitsa_nazad())
         print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
     elif message.text == '🛅 Назад':
-        buttons_main_menu(message)
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                             message.from_user), reply_markup=buttons_main_menu())
     elif message.text == '📞 Связь':
-        pass
-        # bot.set_state(message.from_user.id, MyStates.svazatsa, message.chat.id)#тут поменяем состояния всё ок
-        # buttons_svazatsa(message)
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                             message.from_user), reply_markup=buttons_svazatsa())
+
     elif message.text == '⚙ Настройки':
         pass
     elif message.text == '☎ Полезные контакты':
@@ -167,44 +166,44 @@ def ostavit_zayavka(message):
 
 
 
-@bot.message_handler(state=State_ostavit_zayavky.shag1)
-def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
-    print('Я ХЕНДЛЕРОМ который есть шаг1 ,я сюда дошёл ? ')
-    bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
-    adres = message.text
-    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['adres'] = message.text
-#тут шаги для приёма заявки левое меню с инлайнами
-
-
-@bot.message_handler(state=State_ostavit_zayavky.shag2)
-def zayavka_photo_video_shag2(message):
-    seychas_napisali = message.text
-    print(seychas_napisali)
-    bot.send_message(message.chat.id, 'Прикрепите фотку или видео ', parse_mode='html')
-    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        data['photo_video'] = message.text
-@bot.message_handler(state=State_ostavit_zayavky.shag3)
-def zayavka_shag3(message):
-    seychas_napisali = message.text
-    print(seychas_napisali)
-    bot.send_message(message.chat.id, 'Напишите причину вашего обращения,опишите проблему', parse_mode='html')
-    bot.set_state(message.from_user.id, State_ostavit_zayavky.shag4,message.chat.id)
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        data['prichina_obrasheniya'] = message.text
-@bot.message_handler(state=State_ostavit_zayavky.shag4)
-def zayavka_shag3(message):
-    seychas_napisali = message.text
-    print(seychas_napisali)
-    bot.send_message(message.chat.id, 'Ваше обраение зарегестрированно', parse_mode='html')
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        sobral_zayavku = \
-              (f"name: {data['adres']}\n"
-               f"phone: {data['photo_video']}\n"
-               f"phone: {data['prichina_obrasheniya']}\n")
-        print(sobral_zayavku)
+# @bot.message_handler(state=State_ostavit_zayavky.shag1)
+# def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
+#     print('Я ХЕНДЛЕРОМ который есть шаг1 ,я сюда дошёл ? ')
+#     bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
+#     adres = message.text
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
+#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+#             data['adres'] = message.text
+# #тут шаги для приёма заявки левое меню с инлайнами
+#
+#
+# @bot.message_handler(state=State_ostavit_zayavky.shag2)
+# def zayavka_photo_video_shag2(message):
+#     seychas_napisali = message.text
+#     print(seychas_napisali)
+#     bot.send_message(message.chat.id, 'Прикрепите фотку или видео ', parse_mode='html')
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
+#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+#         data['photo_video'] = message.text
+# @bot.message_handler(state=State_ostavit_zayavky.shag3)
+# def zayavka_shag3(message):
+#     seychas_napisali = message.text
+#     print(seychas_napisali)
+#     bot.send_message(message.chat.id, 'Напишите причину вашего обращения,опишите проблему', parse_mode='html')
+#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag4,message.chat.id)
+#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+#         data['prichina_obrasheniya'] = message.text
+# @bot.message_handler(state=State_ostavit_zayavky.shag4)
+# def zayavka_shag3(message):
+#     seychas_napisali = message.text
+#     print(seychas_napisali)
+#     bot.send_message(message.chat.id, 'Ваше обраение зарегестрированно', parse_mode='html')
+#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+#         sobral_zayavku = \
+#               (f"name: {data['adres']}\n"
+#                f"phone: {data['photo_video']}\n"
+#                f"phone: {data['prichina_obrasheniya']}\n")
+#         print(sobral_zayavku)
 
 
 @bot.callback_query_handler(func=lambda call:True)
@@ -216,7 +215,9 @@ def otveti_na_inline_knopki(call):
             bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
         elif call.data == 'nazad_iz_svarhites_so_mnoy':
             bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
-            buttons_main_menu(call.message)
+            bot.send_message(call.message.chat.id,  # создал меню в общем.
+                             text="Мы отменили ввод,выберите команду из меню ниже".format(
+                                 call.message.from_user), reply_markup=buttons_main_menu())
 
 
 
