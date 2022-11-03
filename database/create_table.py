@@ -26,7 +26,6 @@ class CreateTableAll:
                     """
                 )
                 self.connection.commit() #обязательная штука даже в with
-                self.connection.close()
                 print('[INFO] Таблица registration_tg_users создана')
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL с registration_tg_users" , error)
@@ -47,7 +46,6 @@ class CreateTableAll:
                     """
                 )
                 self.connection.commit() #обязательная штука даже в with
-                self.connection.close()
                 print('[INFO] Таблица zayavka_tg_users создана')
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL zayavka_tg_users ", error)
@@ -70,7 +68,7 @@ create_database_all = CreateTableAll(host=host, port=port, user=user, password=p
 
 
 
-
+create_database_all.create_table_zayavka_tg_users()
 
 
 

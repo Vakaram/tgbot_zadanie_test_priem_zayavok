@@ -20,21 +20,21 @@ state_storage = StateMemoryStorage()
 bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
 
 create_database_tg_bot_priyom_zayavok()#создаём основную и пока единственную базу данных
-time.sleep(4)
-
-create_database_all.create_table_registration_tg_users() #основная таблица имя фам телефон id
-time.sleep(4)
-
-create_database_all.create_table_zayavka_tg_users() #зависимая таблица от основной по id
-time.sleep(4)
-
-
-#инициализирую класс, кнопок для бота передавая ему (bot)
-
+# time.sleep(1)
+# #не работает друг за другом почему то хм надо будет потом разобраться
+# create_database_all.create_table_registration_tg_users() #основная таблица имя фам телефон id
+# time.sleep(1)
+#
+# create_database_all.create_table_zayavka_tg_users() #зависимая таблица от основной по id
+#
 
 class MyStates(StatesGroup):
     name = State()
     phone = State()
+    zayavka_step1 = State()
+    zayavka_step2 = State()
+    zayavka_step3 = State()
+
 
 
 @bot.message_handler(commands=['start'])
@@ -87,7 +87,36 @@ def ready_for_answer(message):
         bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         print('Не подходит телефон ')
 
-@bot.message_handler()  # тут пошли ответы на кнопки
+@bot.message_handler(state=MyStates.zayavka_step1)
+def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 1 шааг ")
+    location = message.text #надо записать его и записать id )
+    bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html')
+    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+@bot.message_handler(state=MyStates.zayavka_step2)
+def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 2 шааг ")
+    location = message.text #надо записать его и записать id )
+    bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html')
+    bot.set_state(message.from_user.id, MyStates.zayavka_step3, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+@bot.message_handler(state=MyStates.zayavka_step3)
+def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 3 шааг ")
+    location = message.text #надо записать его и записать id )
+    bot.send_message(message.chat.id, 'Жалоба отправлена администрации', parse_mode='html')
+    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
+    bot.delete_state(message.from_user.id, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+
+
+
+
+@bot.message_handler()  # Эта штука должны быть в самом низу, она забирает ответы на классы сучка
 def ostavit_zayavka(message):
     if message.text == '📛 Заявка':
         bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
@@ -103,62 +132,15 @@ def ostavit_zayavka(message):
         bot.send_message(message.chat.id,  # создал меню в общем.
                          text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
                              message.from_user), reply_markup=buttons_svazatsa())
-
     elif message.text == '⚙ Настройки':
         pass
+    elif message.text == '📛 Оставить заявку':
+        bot.set_state(message.from_user.id, MyStates.zayavka_step1, message.chat.id)
+        bot.send_message(message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...')
     elif message.text == '☎ Полезные контакты':
         pass
-    # elif message.text == '📛 Оставить заявку':
-    #     # bot.delete_state(message.from_user.id, message.chat.id)
-    #     bot.send_message(message.chat.id, 'Ты только что нажал ОСТАВИТЬ ЗАЯВКУ ну тогда оставляй')
-    #     bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
-    #     # bot.set_state(message.from_user.id, State_ostavit_zayavky.shag1, message.chat.id)
-    #     seychas_napisali = message.text
-    #     print('Я ХЕНДЛЕРОМ который видит текст увидел Оставить заявку ')
-    # elif message.text == '🔔 Поделиться предложением':
+    elif message.text == '🔔 Поделиться предложением':
         pass
-
-
-
-
-# @bot.message_handler(state=State_ostavit_zayavky.shag1)
-# def zayavka_adres_shag1(message): #класс,то что спрашиваем и шаг действующий
-#     print('Я ХЕНДЛЕРОМ который есть шаг1 ,я сюда дошёл ? ')
-#     bot.send_message(message.chat.id, 'Напишите адрес и свою проблему', parse_mode='html') #после добавить инлайн кнопки
-#     adres = message.text
-#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag2, message.chat.id)
-#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-#             data['adres'] = message.text
-# #тут шаги для приёма заявки левое меню с инлайнами
-#
-#
-# @bot.message_handler(state=State_ostavit_zayavky.shag2)
-# def zayavka_photo_video_shag2(message):
-#     seychas_napisali = message.text
-#     print(seychas_napisali)
-#     bot.send_message(message.chat.id, 'Прикрепите фотку или видео ', parse_mode='html')
-#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag3, message.chat.id) #надо брать id файла(фото,видео) из телеграм json или
-#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-#         data['photo_video'] = message.text
-# @bot.message_handler(state=State_ostavit_zayavky.shag3)
-# def zayavka_shag3(message):
-#     seychas_napisali = message.text
-#     print(seychas_napisali)
-#     bot.send_message(message.chat.id, 'Напишите причину вашего обращения,опишите проблему', parse_mode='html')
-#     bot.set_state(message.from_user.id, State_ostavit_zayavky.shag4,message.chat.id)
-#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-#         data['prichina_obrasheniya'] = message.text
-# @bot.message_handler(state=State_ostavit_zayavky.shag4)
-# def zayavka_shag3(message):
-#     seychas_napisali = message.text
-#     print(seychas_napisali)
-#     bot.send_message(message.chat.id, 'Ваше обраение зарегестрированно', parse_mode='html')
-#     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-#         sobral_zayavku = \
-#               (f"name: {data['adres']}\n"
-#                f"phone: {data['photo_video']}\n"
-#                f"phone: {data['prichina_obrasheniya']}\n")
-#         print(sobral_zayavku)
 
 
 @bot.callback_query_handler(func=lambda call:True)

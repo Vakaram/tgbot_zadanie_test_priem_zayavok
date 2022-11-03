@@ -32,3 +32,5 @@ def buttons_svazatsa():  # создаю inline knopki для связаться
     return markup
 
 
+
+

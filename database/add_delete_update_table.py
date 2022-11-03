@@ -31,6 +31,7 @@ class PostgreSQL:
                  """
             cursor.execute(sql, (phone, tg_id,))
             self.connection.commit()
+
         print('Телефон соответствует я добавил его в бд')
 
     def check_in_bd(self, tg_id):
@@ -49,28 +50,6 @@ class PostgreSQL:
                 print('Пользователя нет в БД вижу это по базе')
                 return None
 
-    #
-    # def del_user(self, id):
-    #     delete_query = f"DELETE FROM `user` WHERE id = {id}"
-    #     with self.connection.cursor() as cursor:
-    #         cursor.execute(delete_query)
-    #         self.connection.commit()
-    #
-    # def update_age_by_id(self, new_age, id):
-    #     update_query = f"UPDATE `user` SET age = {new_age} WHERE id = {id}"
-    #     with self.connection.cursor() as cursor:
-    #         cursor.execute(update_query)
-    #         self.connection.commit()
-    #
-    # def select_all_data(self):
-    #     select_all_rows = f"SELECT * FROM `user`"
-    #     with self.connection.cursor() as cursor:
-    #         cursor.execute(select_all_rows)
-    #         rows = cursor.fetchall()
-    #         return rows
-
-
-# нужна переменная для создания бд по классу
 host = '127.0.0.1'
 port = "5432"
 user = "postgres"
