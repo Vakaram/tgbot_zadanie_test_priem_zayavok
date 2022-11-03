@@ -1,6 +1,3 @@
-"""Здесь буду переписывать бота под новый стиль ООП с классами и сохранением состония в базу данных """
-
-# https://github.com/eternnoir/pyTelegramBotAPI/blob/master/examples/custom_states.py
 
 import telebot  # telebot
 from telebot import types  # для указание типов
@@ -9,22 +6,27 @@ from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
 from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa
 from create_bot import telebot_test
-from database.add_delete_update import PostgreSQL, bd_add_delete_update
-from database.create_database import create_database_all
-from database.add_table_values import *
+from database.CREATE_DATABASE import create_database_tg_bot_priyom_zayavok
+from database.add_delete_update_table import PostgreSQL, bd_add_delete_update
+from database.create_table import create_database_all
 from psycopg2 import Error
 import logging
 import re
-# ща будем тянуть импорты
-#надо было сразу делать requarements сейчас сделаю
+import time
 
 print('Бот запущен запустился')
 
 state_storage = StateMemoryStorage()
 bot = telebot.TeleBot(telebot_test, state_storage=state_storage)
-# create_database_all()  # при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без
+
+create_database_tg_bot_priyom_zayavok()#создаём основную и пока единственную базу данных
+time.sleep(4)
+
 create_database_all.create_table_registration_tg_users() #основная таблица имя фам телефон id
+time.sleep(4)
+
 create_database_all.create_table_zayavka_tg_users() #зависимая таблица от основной по id
+time.sleep(4)
 
 
 #инициализирую класс, кнопок для бота передавая ему (bot)

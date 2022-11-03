@@ -35,5 +35,5 @@ def drop_table_registration_tg_users():
             connection.close()
             print('bd закрыли')
 
-drop_table_registration_tg_users()
+# drop_table_registration_tg_users()
 

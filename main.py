@@ -6,7 +6,7 @@ from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
 from create_bot import telebot_test
-from database.create_database import create_database_all
+from database.create_table import create_database_all
 from database.add_table_values import *
 from psycopg2 import Error
 import logging

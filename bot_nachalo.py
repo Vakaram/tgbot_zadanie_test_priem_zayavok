@@ -1,6 +1,6 @@
 import telebot
 from create_bot import telebot_test #берём ключ к боту
-from database.create_database import create_database_all
+from database.create_table import create_database_all
 
 bot = telebot.TeleBot(telebot_test)
 create_database_all() #при первом запуске подключаемся к бд, создаём нужную таблицу(дальше их будет больше допишу с первичным ключём и без

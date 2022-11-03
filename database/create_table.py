@@ -1,6 +1,6 @@
 from psycopg2 import Error
 import psycopg2
-class Create_Database_All:
+class CreateTableAll:
     def __init__(self, host, port, user, password, database):
         try:
             self.connection = psycopg2.connect(user=user,
@@ -26,6 +26,7 @@ class Create_Database_All:
                     """
                 )
                 self.connection.commit() #обязательная штука даже в with
+                self.connection.close()
                 print('[INFO] Таблица registration_tg_users создана')
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL с registration_tg_users" , error)
@@ -46,6 +47,7 @@ class Create_Database_All:
                     """
                 )
                 self.connection.commit() #обязательная штука даже в with
+                self.connection.close()
                 print('[INFO] Таблица zayavka_tg_users создана')
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL zayavka_tg_users ", error)
@@ -60,9 +62,10 @@ user = "postgres"
 password = "admin"
 database = "tg_bot_priyom_zayavok"
 
-create_database_all = Create_Database_All(host=host, port=port, user=user, password=password, database=database)
-
-
+create_database_all = CreateTableAll(host=host, port=port, user=user, password=password, database=database)
+# create_database_all.create_table_registration_tg_users()
+#
+# create_database_all.create_table_zayavka_tg_users()
 
 
 

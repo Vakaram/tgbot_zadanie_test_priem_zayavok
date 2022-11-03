@@ -19,6 +19,7 @@ def zapros_info_in_table():
         mobile_records = cursor.fetchall()
         print(mobile_records)
         print("Print each row and it's columns values")
+        connection.close()
 
         for row in mobile_records:
             print("Id = ", row[0], )
@@ -34,7 +35,7 @@ def zapros_info_in_table():
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-zapros_info_in_table()
+# zapros_info_in_table()
 
 
 def zapros_info_in_table_yestli_user():
