@@ -4,7 +4,8 @@ from telebot import types  # для указание типов
 from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
-from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa
+from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa, \
+    buttons_inlint_shag1, buttons_inlint_shag2, buttons_inlint_shag3
 from create_bot import telebot_test
 from database.CREATE_DATABASE import create_database_tg_bot_priyom_zayavok
 from database.add_delete_update_table import PostgreSQL, bd_add_delete_update
@@ -45,7 +46,7 @@ def start_ex(message):
         bot.delete_state(message.from_user.id,message.chat.id)              # добавил 29.10 потомучто состояние надо было чистить чтобы код дальше шагал
         #ниже вызываем отпрвку смс в markup передаём нашу функцию с кнопками
         bot.send_message(message.chat.id,text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
-                            message.from_user), reply_markup=buttons_main_menu())
+                            message.from_user), reply_markup=buttons_main_menu(message))
     else:
         print('Я вижу после сравнения что его нет в бд')
         bot.send_message(message.chat.id, 'Введите имя')
@@ -81,66 +82,11 @@ def ready_for_answer(message):
         bot.delete_state(message.from_user.id, message.chat.id)
         bot.send_message(message.chat.id, #создал меню в общем.
                          text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
-                             message.from_user), reply_markup=buttons_main_menu())
+                             message.from_user), reply_markup=buttons_main_menu(message))
     else:
         bot.send_message(message.chat.id, 'Не подходит телефон надо +7 и всего 11 цифр:', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         print('Не подходит телефон ')
-
-@bot.message_handler(state=MyStates.zayavka_step1)
-def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
-    print("Я внутри 1 шааг ")
-    location = message.text #надо записать его и записать id )
-    bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html')
-    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
-    #Вызвать inline кнопку создам пожалуй
-
-@bot.message_handler(state=MyStates.zayavka_step2)
-def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
-    print("Я внутри 2 шааг ")
-    location = message.text #надо записать его и записать id )
-    bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html')
-    bot.set_state(message.from_user.id, MyStates.zayavka_step3, message.chat.id)
-    #Вызвать inline кнопку создам пожалуй
-
-@bot.message_handler(state=MyStates.zayavka_step3)
-def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
-    print("Я внутри 3 шааг ")
-    location = message.text #надо записать его и записать id )
-    bot.send_message(message.chat.id, 'Жалоба отправлена администрации', parse_mode='html')
-    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
-    bot.delete_state(message.from_user.id, message.chat.id)
-    #Вызвать inline кнопку создам пожалуй
-
-
-
-
-
-@bot.message_handler()  # Эта штука должны быть в самом низу, она забирает ответы на классы сучка
-def ostavit_zayavka(message):
-    if message.text == '📛 Заявка':
-        bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
-        bot.send_message(message.chat.id,  # создал меню в общем.
-                         text="Вы нажали кнопку заявка, должно появится новое меню. ".format(
-                             message.from_user), reply_markup=buttons_main_ostavitzayavka_podelitsa_nazad())
-        print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
-    elif message.text == '🛅 Назад':
-        bot.send_message(message.chat.id,  # создал меню в общем.
-                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
-                             message.from_user), reply_markup=buttons_main_menu())
-    elif message.text == '📞 Связь':
-        bot.send_message(message.chat.id,  # создал меню в общем.
-                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
-                             message.from_user), reply_markup=buttons_svazatsa())
-    elif message.text == '⚙ Настройки':
-        pass
-    elif message.text == '📛 Оставить заявку':
-        bot.set_state(message.from_user.id, MyStates.zayavka_step1, message.chat.id)
-        bot.send_message(message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...')
-    elif message.text == '☎ Полезные контакты':
-        pass
-    elif message.text == '🔔 Поделиться предложением':
-        pass
 
 
 @bot.callback_query_handler(func=lambda call:True)
@@ -154,7 +100,89 @@ def otveti_na_inline_knopki(call):
             bot.send_message(call.message.chat.id, ' Я вижу вы нажали назад Inline кнопка!')
             bot.send_message(call.message.chat.id,  # создал меню в общем.
                              text="Мы отменили ввод,выберите команду из меню ниже".format(
-                                 call.message.from_user), reply_markup=buttons_main_menu())
+                                 call.message.from_user), reply_markup=buttons_main_menu(message=call.message))
+        elif call.data == 'propustit_shag1': #если нажали пропустить переходим к шагу и меняем состояние мы так же ничего не записываем в бд на этом шаге
+            buttons_inlint_shag2(call.message)
+            bot.set_state(call.message.from_user.id, MyStates.zayavka_step2, call.message.chat.id)
+            location = call.message.text  # надо записать его и записать id )
+            bot.send_message(call.message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке',
+                             parse_mode='html'.format(
+                                 call.message.from_user), reply_markup=buttons_inlint_shag2(call.message))
+        elif call.data == 'propustit_shag2': #если нажали пропустить переходим к шагу и меняем состояние мы так же ничего не записываем в бд на этом шаге
+            buttons_inlint_shag3(call.message)
+            bot.set_state(call.message.from_user.id, MyStates.zayavka_step3, call.message.chat.id)
+        elif call.data == 'nazad_shag1': #тут реагируем на нажатие просто перекидываем в главное меня с текстом рады вас видеть
+            buttons_inlint_shag3(call.message)
+            bot.send_message(call.message.chat.id, 'Вы вышли в главное меню нажмите любую кнопку и я должен был подчистить состояние  :', parse_mode='html')
+            bot.delete_state(call.message.from_user.id, call.message.chat.id) #здесь можем делить дальше надо менять состояния
+        elif call.data == 'nazad_shag2':
+            buttons_inlint_shag3(call.message)
+            bot.set_state(call.message.from_user.id, MyStates.zayavka_step1, call.message.chat.id)
+
+        elif call.data == 'nazad_shag3':
+            buttons_inlint_shag3(call.message)
+            bot.set_state(call.message.from_user.id, MyStates.zayavka_step2, call.message.chat.id)
+
+
+
+@bot.message_handler(state=MyStates.zayavka_step1)
+def zayavka_step1(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 1 шааг ")
+    buttons_inlint_shag2(message)
+    location = message.text #надо записать его и записать id )
+    bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html'.format(
+                             message.from_user), reply_markup=buttons_inlint_shag2(message))
+    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+@bot.message_handler(state=MyStates.zayavka_step2)
+def zayavka_step2(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 2 шааг ")
+    buttons_inlint_shag3(message)
+    bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html'.format(
+                             message.from_user), reply_markup=buttons_inlint_shag3(message))
+    bot.set_state(message.from_user.id, MyStates.zayavka_step3, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+@bot.message_handler(state=MyStates.zayavka_step3)
+def zayavka_step3(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри 3 шааг ")
+    bot.send_message(message.chat.id, 'Жалоба отправлена администрации', parse_mode='html')
+    bot.set_state(message.from_user.id, MyStates.zayavka_step2, message.chat.id)
+    bot.delete_state(message.from_user.id, message.chat.id)
+    #Вызвать inline кнопку создам пожалуй
+
+@bot.message_handler()  # Эта штука должны быть в самом низу, она забирает ответы на классы сучка
+def ostavit_zayavka(message):
+    if message.text == '📛 Заявка':
+        bot.send_message(message.chat.id, 'Ты только что нажал Заявка')
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Вы нажали кнопку заявка, должно появится новое меню. ".format(
+                             message.from_user), reply_markup=buttons_main_ostavitzayavka_podelitsa_nazad(message))
+        print('Я ХЕНДЛЕРОМ который видет текст увидил ЗАЯВКА')
+    elif message.text == '🛅 Назад':
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                             message.from_user), reply_markup=buttons_main_menu(message))
+    elif message.text == '📞 Связь':
+        bot.send_message(message.chat.id,  # создал меню в общем.
+                         text="Привет, {0.first_name}! Раз ты уже зарегался я могу показать тебе клавиатуру".format(
+                             message.from_user), reply_markup=buttons_svazatsa(message))
+    elif message.text == '⚙ Настройки':
+        pass
+    elif message.text == '📛 Оставить заявку':
+        bot.set_state(message.from_user.id, MyStates.zayavka_step1, message.chat.id)
+        bot.send_message(message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...'.format(
+                             message.from_user), reply_markup=buttons_inlint_shag1(message))
+        #здесь должен быть отмена и пропуск первого шага
+
+    elif message.text == '☎ Полезные контакты':
+        pass
+    elif message.text == '🔔 Поделиться предложением':
+        pass
+
+
+
 
 
 
