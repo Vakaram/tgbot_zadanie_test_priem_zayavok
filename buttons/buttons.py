@@ -33,19 +33,19 @@ def buttons_svazatsa(message):  # создаю inline knopki для связат
 
 def buttons_inlint_shag1(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("Пропустить", callback_data='propustit_shag1')
-    btn2 = types.InlineKeyboardButton("Назад", callback_data='nazad_shag1')
+    btn1 = types.InlineKeyboardButton("Пропустить", callback_data='miss_step1')
+    btn2 = types.InlineKeyboardButton("Назад", callback_data='back_step1')
     markup.add(btn1, btn2, )
     return markup
 def buttons_inlint_shag2(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("Пропустить", callback_data='propustit_shag2')
-    btn2 = types.InlineKeyboardButton("Назад", callback_data='nazad_shag2')
+    btn1 = types.InlineKeyboardButton("Пропустить", callback_data='miss_step2')
+    btn2 = types.InlineKeyboardButton("Назад", callback_data='back_step2')
     markup.add(btn1, btn2, )
     return markup
 def buttons_inlint_shag3(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn2 = types.InlineKeyboardButton("Назад", callback_data='nazad_shag3')
+    btn2 = types.InlineKeyboardButton("Назад", callback_data='back_step3')
     markup.add(btn2, )
     return markup
 
