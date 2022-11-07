@@ -36,11 +36,13 @@ class CreateTableAll:
                 cursor.execute(
                     """
                     CREATE TABLE zayavka_tg_users(
-                        tg_id int ,
-                        date_create timestamp NOT NULL default CURRENT_TIMESTAMP,
+                        application_id SERIAL, 
+                        tg_id int NOT NULL,
                         location varchar(150),
-                        photo_or_video varchar(150),
+                        photo_video varchar(150),
                         description varchar (400),
+                        is_processed boolean default FALSE, 
+                        date_create timestamp NOT NULL default CURRENT_TIMESTAMP,
                         FOREIGN KEY (tg_id) REFERENCES registration_tg_users (tg_id)
                         );
                     """
