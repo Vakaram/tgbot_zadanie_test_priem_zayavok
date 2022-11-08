@@ -128,6 +128,11 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
             bot.set_state(call.from_user.id, MyStates.application_step1, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...'.format(
                 call.message.from_user), reply_markup=buttons_inlint_requests_step1(call.message))
+            # location = call.message.text
+            # tg_id = call.from_user.id
+            # bd_add_delete_update.add_request_location(location, tg_id)
+
+
         elif call.data == 'back_step3':
             bot.set_state(call.from_user.id, MyStates.application_step2, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке',
@@ -139,6 +144,9 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
 @bot.message_handler(state=MyStates.application_step1)
 def application_step1(message): #класс,то что спрашиваем и шаг действующий
     print("Я внутри 1 шааг ")
+    location = message.text
+    tg_id = message.from_user.id
+    bd_add_delete_update.add_request_location(location, tg_id)
     bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html'.format(
                              message.from_user), reply_markup=buttons_inlint_requests_step2(message))
 
@@ -154,8 +162,7 @@ def application_step1(message): #класс,то что спрашиваем и 
 @bot.message_handler(state=MyStates.application_step2,content_types=content_types_all) #и т.д
 def application_step2(message):
     print("Я внутри 2 шааг ")
-    print(message.photo)
-    if message.photo is None : #добавить проверку на видео ниже
+    if message.photo is None and message.video is None: #добавить проверку на видео ниже
         bot.send_message(message.chat.id,
                          'Шаг 2/3: Прикрепите фотографию или видео к своей заявке '
                          '\n Подходит только фото или видео.Текст ,цифры, смайлики не принимаются. Прикрепите фотографию или видео пожалуйста ',
@@ -165,6 +172,14 @@ def application_step2(message):
         bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html'.format(
         message.from_user), reply_markup=buttons_inlint_requests_step3(message))
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
+        #пишем в бд
+        tg_id = message.from_user.id
+        if message.photo is None:
+            photo_video = message.video.file_id
+        else:
+            photo_video = message.photo[-1].file_id
+        print(photo_video)
+        bd_add_delete_update.add_request_media(photo_video, tg_id)
 
 
 @bot.message_handler(state=MyStates.application_step3,content_types=content_types_all)
@@ -177,9 +192,12 @@ def application_step3(message): #класс,то что спрашиваем и 
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
     else:
         print("Я внутри 3 шааг ")
-        bot.send_message(message.chat.id, 'Жалоба отправлена администрации', parse_mode='html')
+        bot.send_message(message.chat.id, 'Жалоба отправлена администрации,можете вызвать меню нажав /start или раскрыть его кнопкой ниже ', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
         bot.delete_state(message.from_user.id, message.chat.id)
+        tg_id = message.from_user.id
+        desctiption = message.text
+        bd_add_delete_update.add_request_description(desctiption,tg_id)
 
 
 

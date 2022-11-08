@@ -61,32 +61,35 @@ class PostgreSQL:
             self.connection.commit()
             print('Сохранил id человека в бд запрос от пользователя сразу ')
 
-    # def add_application_location(self, location): #Будем добавлять id пользователя и всё на первом шаге
-    #     with self.connection.cursor() as cursor:
-    #         sql = """
-    #             UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
-    #                  """
-    #         cursor.execute(sql, (location,))
-    #         self.connection.commit()
-    #
-    # def add_application_media(self, location, name_surname): #Будем добавлять id пользователя и всё на первом шаге
-    #     with self.connection.cursor() as cursor:
-    #         sql = """
-    #             UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
-    #                  """
-    #         cursor.execute(sql, (phone, tg_id,))
-    #         self.connection.commit()
-    # def add_application_description(self, location, name_surname):
-    #     with self.connection.cursor() as cursor: #добавить обращение, и изменить состояние на TRUE
-    #         sql = """
-    #             UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
-    #                  """
-    #         cursor.execute(sql, (phone, tg_id,))
-    #         self.connection.commit()
-    #
-    # def form_an_application(self):#как всё заполнили , формируем ответ из бд, вид - карточка
-    #     pass
-    #
+    def add_request_location(self, location, tg_id): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                        UPDATE users_tg_request SET location = %s WHERE tg_id = %s and filled = FALSE
+                             """
+            cursor.execute(sql, (location,tg_id))
+            self.connection.commit()
+
+    def add_request_media(self, photo_id, tg_id): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                        UPDATE users_tg_request SET photo_video = %s WHERE tg_id = %s and filled = FALSE
+                             """
+            cursor.execute(sql, (photo_id,tg_id))
+            self.connection.commit()
+
+
+    def add_request_description(self, description, tg_id):
+        with self.connection.cursor() as cursor:
+            sql = """    
+            UPDATE users_tg_request SET description = %s ,filled = TRUE WHERE tg_id = %s and filled = FALSE
+            
+                    """
+            cursor.execute(sql, (description, tg_id))
+            self.connection.commit()
+
+    def form_an_application(self):#как всё заполнили , формируем ответ из бд, вид - карточка
+        pass
+
     def delete_last_request_user(self, tg_id):
         with self.connection.cursor() as cursor:#нам нужно будет дропать последнию запись обращение если нажали отмена в первой графе при вводе.
             sql = """    
