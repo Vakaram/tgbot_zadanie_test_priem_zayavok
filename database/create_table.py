@@ -21,7 +21,8 @@ class CreateTableAll:
                     CREATE TABLE registration_tg_users(
                         tg_id int PRIMARY KEY,
                         name_surname varchar(150) NOT NULL,
-                        phone varchar(20)
+                        phone varchar(20),
+                        is_admin boolean default FALSE
                         );
                     """
                 )
@@ -35,13 +36,13 @@ class CreateTableAll:
             with self.connection.cursor() as cursor:  # создание таблицы если её нет
                 cursor.execute(
                     """
-                    CREATE TABLE zayavka_tg_users(
-                        application_id SERIAL, 
+                    CREATE TABLE users_tg_request(
+                        application_id serial, 
                         tg_id int NOT NULL,
                         location varchar(150),
                         photo_video varchar(150),
                         description varchar (400),
-                        is_processed boolean default FALSE, 
+                        filled boolean default FALSE, 
                         date_create timestamp NOT NULL default CURRENT_TIMESTAMP,
                         FOREIGN KEY (tg_id) REFERENCES registration_tg_users (tg_id)
                         );
@@ -63,6 +64,7 @@ password = "admin"
 database = "tg_bot_priyom_zayavok"
 
 create_database_all = CreateTableAll(host=host, port=port, user=user, password=password, database=database)
+
 # create_database_all.create_table_registration_tg_users()
 #
 # create_database_all.create_table_zayavka_tg_users()
@@ -70,7 +72,9 @@ create_database_all = CreateTableAll(host=host, port=port, user=user, password=p
 
 
 
-create_database_all.create_table_zayavka_tg_users()
+# create_database_all.create_table_registration_tg_users()
+# create_database_all.create_table_zayavka_tg_users()
+
 
 
 

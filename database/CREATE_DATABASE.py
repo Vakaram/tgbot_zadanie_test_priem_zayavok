@@ -17,3 +17,5 @@ def create_database_tg_bot_priyom_zayavok():
             connection.close()
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
+
+# create_database_tg_bot_priyom_zayavok()

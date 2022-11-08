@@ -34,7 +34,7 @@ def buttons_svazatsa(message):  # создаю inline knopki для связат
 def buttons_inlint_shag1(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton("Пропустить", callback_data='miss_step1')
-    btn2 = types.InlineKeyboardButton("Назад", callback_data='back_step1')
+    btn2 = types.InlineKeyboardButton("Отмена", callback_data='back_step1')
     markup.add(btn1, btn2, )
     return markup
 def buttons_inlint_shag2(message):  # создаю inline knopki для связаться

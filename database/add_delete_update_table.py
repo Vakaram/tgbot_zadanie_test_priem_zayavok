@@ -50,6 +50,46 @@ class PostgreSQL:
                 print('Пользователя нет в БД вижу это по базе')
                 return None
 
+"""Ниже идёт добавление к заявке , все 3 шага и дропы и делиты и т.д """
+    def create_application(self, tg_id, name_surname): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                        INSERT INTO registration_tg_users (tg_id, name_surname)
+                        VALUES(%s, %s)
+                        """,
+                           (tg_id, name_surname,))
+            self.connection.commit()
+            print('Сохранил имя человека в БД')
+    def add_application_location(self, location): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
+                     """
+            cursor.execute(sql, (location,))
+            self.connection.commit()
+
+    def add_application_media(self, location, name_surname): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
+                     """
+            cursor.execute(sql, (phone, tg_id,))
+            self.connection.commit()
+    def add_application_description(self, location, name_surname):
+        with self.connection.cursor() as cursor: #добавить обращение, и изменить состояние на TRUE
+            sql = """    
+                UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
+                     """
+            cursor.execute(sql, (phone, tg_id,))
+            self.connection.commit()
+
+    def form_an_application(self):#как всё заполнили , формируем ответ из бд, вид - карточка
+        pass
+
+    def delete_last_request(self):
+        pass #нам нужно будет дропать последнию запись обращение если нажали отмена в первой графе при вводе.
+
+
 host = '127.0.0.1'
 port = "5432"
 user = "postgres"
