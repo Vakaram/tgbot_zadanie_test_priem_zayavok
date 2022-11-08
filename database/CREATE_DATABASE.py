@@ -18,4 +18,4 @@ def create_database_tg_bot_priyom_zayavok():
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
 
-# create_database_tg_bot_priyom_zayavok()
+create_database_tg_bot_priyom_zayavok()

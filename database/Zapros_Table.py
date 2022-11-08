@@ -42,7 +42,7 @@ def zapros_zayavka_tg_users():
                                       database="tg_bot_priyom_zayavok")
         connection.autocommit = True  # постояяно сам коммитит данные
         cursor = connection.cursor()
-        postgreSQL_select_Query = "select * from zayavka_tg_users" #менять таблицу тут
+        postgreSQL_select_Query = "select * from users_tg_request" #менять таблицу тут
 
         cursor.execute(postgreSQL_select_Query)
         print("Selecting rows from mobile table using cursor.fetchall")
@@ -61,8 +61,10 @@ def zapros_zayavka_tg_users():
             connection.close()
             print("PostgreSQL connection is closed")
 
-registration_tg_users()
-# zapros_zayavka_tg_users()
+# registration_tg_users()
+
+zapros_zayavka_tg_users()
+
 
 
 

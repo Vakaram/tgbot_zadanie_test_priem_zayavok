@@ -5,7 +5,7 @@ from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
 from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa, \
-    buttons_inlint_shag1, buttons_inlint_shag2, buttons_inlint_shag3
+    buttons_inlint_requests_step1, buttons_inlint_requests_step2, buttons_inlint_requests_step3
 from create_bot import telebot_test
 from database.CREATE_DATABASE import create_database_tg_bot_priyom_zayavok
 from database.add_delete_update_table import PostgreSQL, bd_add_delete_update
@@ -111,27 +111,28 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
         elif call.data == 'miss_step1': #если нажали пропустить переходим к шагу и меняем состояние мы так же ничего не записываем в бд на этом шаге
             bot.send_message(call.message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке',
                              parse_mode='html'.format(
-                                 call.message.from_user), reply_markup=buttons_inlint_shag2(call.message))
+                                 call.message.from_user), reply_markup=buttons_inlint_requests_step2(call.message))
                                     #то что выше написанно, это в случае пропуска мы отправляем шаг и минуем смс
                                     #А так же мы тут тоже должны продублировать запись в бд
             bot.set_state(call.from_user.id, MyStates.application_step2, call.message.chat.id)
         elif call.data == 'miss_step2': #если нажали пропустить переходим к шагу и меняем состояние мы так же ничего не записываем в бд на этом шаге
             bot.send_message(call.message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ',
                              parse_mode='html'.format(
-                                 call.message.from_user), reply_markup=buttons_inlint_shag3(call.message))
+                                 call.message.from_user), reply_markup=buttons_inlint_requests_step3(call.message))
             bot.set_state(call.from_user.id, MyStates.application_step3, call.message.chat.id)
-        elif call.data == 'back_step1': #тут реагируем на нажатие просто перекидываем в главное меня с текстом рады вас видеть
+        elif call.data == 'cancel_step1': #тут реагируем на нажатие просто перекидываем в главное меня с текстом рады вас видеть
             bot.delete_state(call.from_user.id, call.message.chat.id) #здесь можем делить дальше надо менять состояния
-            bot.send_message(call.message.chat.id, 'Вы вышли в главное меню нажмите любую кнопку и я должен был подчистить состояние  :', parse_mode='html')
+            bot.send_message(call.message.chat.id, 'Вы отменили ввод заявки(я должен был удалить заявку):', parse_mode='html')
+            bd_add_delete_update.delete_last_request_user(tg_id=call.from_user.id)
         elif call.data == 'back_step2':
             bot.set_state(call.from_user.id, MyStates.application_step1, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...'.format(
-                call.message.from_user), reply_markup=buttons_inlint_shag1(call.message))
+                call.message.from_user), reply_markup=buttons_inlint_requests_step1(call.message))
         elif call.data == 'back_step3':
             bot.set_state(call.from_user.id, MyStates.application_step2, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке',
                              parse_mode='html'.format(
-                                 call.message.from_user), reply_markup=buttons_inlint_shag2(call.message))
+                                 call.message.from_user), reply_markup=buttons_inlint_requests_step2(call.message))
 
 
 
@@ -139,7 +140,7 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
 def application_step1(message): #класс,то что спрашиваем и шаг действующий
     print("Я внутри 1 шааг ")
     bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html'.format(
-                             message.from_user), reply_markup=buttons_inlint_shag2(message))
+                             message.from_user), reply_markup=buttons_inlint_requests_step2(message))
 
     bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
 
@@ -158,11 +159,11 @@ def application_step2(message):
         bot.send_message(message.chat.id,
                          'Шаг 2/3: Прикрепите фотографию или видео к своей заявке '
                          '\n Подходит только фото или видео.Текст ,цифры, смайлики не принимаются. Прикрепите фотографию или видео пожалуйста ',
-                         parse_mode='html'.format(message.from_user), reply_markup=buttons_inlint_shag2(message))
+                         parse_mode='html'.format(message.from_user), reply_markup=buttons_inlint_requests_step2(message))
         bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
     else:
         bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html'.format(
-        message.from_user), reply_markup=buttons_inlint_shag3(message))
+        message.from_user), reply_markup=buttons_inlint_requests_step3(message))
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
 
 
@@ -172,7 +173,7 @@ def application_step3(message): #класс,то что спрашиваем и 
         bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях.'
                                           '\n Принимается только текст,фото можно приложить выше нажав клавишу назад',
                          parse_mode='html'.format(
-                             message.from_user), reply_markup=buttons_inlint_shag3(message))
+                             message.from_user), reply_markup=buttons_inlint_requests_step3(message))
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
     else:
         print("Я внутри 3 шааг ")
@@ -203,7 +204,9 @@ def ostavit_zayavka(message):
     elif message.text == '📛 Оставить заявку':
         bot.set_state(message.from_user.id, MyStates.application_step1, message.chat.id)
         bot.send_message(message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...'.format(
-                             message.from_user), reply_markup=buttons_inlint_shag1(message))
+                             message.from_user), reply_markup=buttons_inlint_requests_step1(message))
+        bd_add_delete_update.create_application(tg_id=message.from_user.id) #создаём сразу пользователя тут
+
     elif message.text == '☎ Полезные контакты':
         pass
     elif message.text == '🔔 Поделиться предложением':
