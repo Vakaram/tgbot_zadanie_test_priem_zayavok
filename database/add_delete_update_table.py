@@ -149,6 +149,16 @@ class PostgreSQL:
                 """
             cursor.execute(sql, (phone,tg_id,))
             self.connection.commit()
+    def checking_phone_from_contact(self,tg_id): #проверка номера телефона в бд, когда пользователь говорит свяжитесь со мной по телефону
+        with self.connection.cursor() as cursor:
+            print(tg_id)
+            sql = """    
+                  SELECT phone From registration_tg_users WHERE tg_id = %s
+                  """
+            cursor.execute(sql, (tg_id,))
+            result_phone = cursor.fetchall()[0][0]
+            self.connection.commit()
+            return result_phone
 
 
 
@@ -165,3 +175,6 @@ password = "admin"
 database = "tg_bot_priyom_zayavok"
 
 bd_add_delete_update = PostgreSQL(host=host, port=port, user=user, password=password, database=database)
+
+# tg_id = 1484570227
+# print(bd_add_delete_update.checking_phone_from_contact(tg_id))

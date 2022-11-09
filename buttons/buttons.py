@@ -71,3 +71,12 @@ def cancel_change_name_phone(message): #делаем инлайн кнопку �
     btn1 = types.InlineKeyboardButton("Отмена", callback_data='сancel_change_name_phone')
     markup.add(btn1, )
     return markup
+
+def number_check_from_contact(message):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("Да", callback_data='yes_is_mine_phone_from_contact')
+    btn2 = types.InlineKeyboardButton("Оставить другой номер", callback_data='rename_my_phone_from_contact')
+    markup.add(btn1,btn2 )
+    return markup
+
+

@@ -104,7 +104,12 @@ def ready_for_answer(message):
 def otveti_na_inline_knopki(call): #важная фишка, не всегда тут нужен call.message если меняем состояние хвататет call.user_id.
     if call.message:
         if call.data == 'call_me_back':
-            bot.send_message(call.message.chat.id, ' Я вижу вы нажали перезвонить Вам!')
+            number_phone = bd_add_delete_update.checking_phone_from_contact(tg_id=call.from_user.id)
+            print(number_phone)
+            sms_text = 'Это ваш номер телефона? '+'\n' + str(number_phone)
+            bot.send_message(call.message.chat.id,  # создал меню в общем.
+                             text=sms_text.format(
+                                 call.message.from_user), reply_markup=number_check_from_contact(message=call.message))
         elif call.data == 'contact_me_on_chat':
             bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
         elif call.data == 'back_from_contact':
@@ -146,7 +151,15 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
             bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
             bot.send_message(call.message.chat.id, 'Вы отменили изменение имени'.
                              format(call.message.from_user), reply_markup=settings_menu(call.message))
-            #и тут наверное стирать бд ещё надо будет
+        elif call.data == 'number_check_from_contact':
+            bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
+            bot.send_message(call.message.chat.id, 'Заявка отправлена администрации вам перезвонят'.
+                             format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
+        elif call.data == 'rename_my_phone_from_contact': # сменить номер из кнопки связаться
+            bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
+            bot.send_message(call.message.chat.id, 'Хорошо тогда укажите телефон на который нужно позвонить, и кто возьмёт трубку '.
+                             format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
+            #укажем стейт новый , там примем смс, полность. и запишим его в бд новое
         else:
             bot.send_message(call.message.chat.id, 'Я непонимаю команды, давайте начнём заново'.
                              format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
