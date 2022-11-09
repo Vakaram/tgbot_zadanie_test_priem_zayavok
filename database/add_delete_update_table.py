@@ -98,6 +98,50 @@ class PostgreSQL:
             cursor.execute(sql, (tg_id,))
             self.connection.commit()
 
+    """Ниже код для "Предложить предложение" """
+    def create_offer_onli_tg_id(self, tg_id): #Будем добавлять id пользователя
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                        INSERT INTO share_the_offer (tg_id)
+                        VALUES(%s)
+                        """,
+                           (tg_id,))
+            self.connection.commit()
+            print('Сохранил id человека в бд запрос от пользователя сразу ')
+
+
+    def add_data_share_the_offer_only_text(self, text, tg_id ): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE share_the_offer SET offer = %s, filled = TRUE WHERE tg_id = %s and filled = FALSE
+                """
+            cursor.execute(sql, (text,tg_id))
+            self.connection.commit()
+
+    def add_data_share_the_offer_text_photo_video(self, text,photo_video, tg_id ): #Будем добавлять id пользователя и всё на первом шаге
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE share_the_offer SET offer = %s , photo_video = %s , filled = TRUE WHERE tg_id = %s and filled = FALSE
+                """
+            cursor.execute(sql, (text,photo_video,tg_id,))
+            self.connection.commit()
+
+    def delete_last_share_the_offer(self, tg_id):
+        with self.connection.cursor() as cursor:#нам нужно будет дропать последнию запись обращение если нажали отмена в первой графе при вводе.
+            sql = """    
+                Delete from share_the_offer where tg_id = %s and filled = FALSE
+                """
+            cursor.execute(sql, (tg_id,))
+            self.connection.commit()
+
+
+
+
+
+
+
+
+
 
 host = '127.0.0.1'
 port = "5432"

@@ -4,8 +4,7 @@ from telebot import types  # для указание типов
 from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
-from buttons.buttons import buttons_main_menu, buttons_main_ostavitzayavka_podelitsa_nazad, buttons_svazatsa, \
-    buttons_inlint_requests_step1, buttons_inlint_requests_step2, buttons_inlint_requests_step3
+from buttons.buttons import *
 from create_bot import telebot_test
 from database.CREATE_DATABASE import create_database_tg_bot_priyom_zayavok
 from database.add_delete_update_table import PostgreSQL, bd_add_delete_update
@@ -42,6 +41,8 @@ class MyStates(StatesGroup):
     application_step1 = State()
     application_step2 = State()
     application_step3 = State()
+    share_the_offer = State()
+
 
 
 @bot.message_handler(commands=['start'])
@@ -128,16 +129,16 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
             bot.set_state(call.from_user.id, MyStates.application_step1, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'ШАГ 1/3. Напишите адрес или ориентир проблемы...'.format(
                 call.message.from_user), reply_markup=buttons_inlint_requests_step1(call.message))
-            # location = call.message.text
-            # tg_id = call.from_user.id
-            # bd_add_delete_update.add_request_location(location, tg_id)
-
-
         elif call.data == 'back_step3':
             bot.set_state(call.from_user.id, MyStates.application_step2, call.message.chat.id)
             bot.send_message(call.message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке',
                              parse_mode='html'.format(
                                  call.message.from_user), reply_markup=buttons_inlint_requests_step2(call.message))
+        elif call.data == 'cancel_share_offer_inline':
+            bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
+            bot.send_message(call.message.chat.id, 'Вы отменили ввод заявки(я должен был удалить заявку):',
+                             parse_mode='html')
+            bd_add_delete_update.delete_last_share_the_offer(tg_id=call.from_user.id)
 
 
 
@@ -149,15 +150,7 @@ def application_step1(message): #класс,то что спрашиваем и 
     bd_add_delete_update.add_request_location(location, tg_id)
     bot.send_message(message.chat.id, 'Шаг 2/3: Прикрепите фотографию или видео к своей заявке', parse_mode='html'.format(
                              message.from_user), reply_markup=buttons_inlint_requests_step2(message))
-
     bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
-
-# @bot.message_handler(state=MyStates.application_step2) #и т.д
-# def application_step2(message):                                           #класс, то что спрашиваем и шаг действующий
-#     print("Я внутри 2 шааг ")
-#     bot.send_message(message.chat.id, 'Шаг 3/3: Напишите причину обращения в подробностях ', parse_mode='html'.format(
-#                                  message.from_user), reply_markup=buttons_inlint_shag3(message))
-#     bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
 
 @bot.message_handler(state=MyStates.application_step2,content_types=content_types_all) #и т.д
 def application_step2(message):
@@ -190,7 +183,7 @@ def application_step3(message): #класс,то что спрашиваем и 
                          parse_mode='html'.format(
                              message.from_user), reply_markup=buttons_inlint_requests_step3(message))
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
-    else:
+    elif message.photo is True or message.video is True:
         print("Я внутри 3 шааг ")
         bot.send_message(message.chat.id, 'Жалоба отправлена администрации,можете вызвать меню нажав /start или раскрыть его кнопкой ниже ', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
@@ -198,7 +191,46 @@ def application_step3(message): #класс,то что спрашиваем и 
         tg_id = message.from_user.id
         desctiption = message.text
         bd_add_delete_update.add_request_description(desctiption,tg_id)
+    else:
 
+        bot.send_message(message.chat.id, 'Похоже вы отправили не только текст или фото и видео а что то другое, '
+                                          'я могу принимать только текст видео  или текст фото '
+                                          'или просто текст ', parse_mode='html')
+        bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
+
+@bot.message_handler(state=MyStates.share_the_offer,content_types=content_types_all)
+def share_the_offer(message): #класс,то что спрашиваем и шаг действующий
+    print("Я внутри оставить предложение!  ")
+    if message.media_group_id is None and message.photo is None and message.video is None: #добавить проверку на видео ниже
+        text = message.text
+        tg_id = message.from_user.id
+        bd_add_delete_update.add_data_share_the_offer_only_text(text,tg_id)
+        bot.send_message(message.chat.id, 'Идея принята и передана администрации'.format(
+            message.from_user), reply_markup=buttons_main_menu(message))
+        bot.delete_state(message.from_user.id, message.chat.id)
+    elif message.media_group_id is True:
+        text = message.text
+        tg_id = message.from_user.id
+        if message.photo is None:
+            photo_video = message.media_group_id.video.file_id
+            print(photo_video)
+            video = message.video.file_id
+            print('video=', video)
+        else:
+            photo_video = message.media_group_id.photo[-1].file_id
+            print(photo_video)
+            photo = message.photo[-1].file_id
+            print('video=', photo)
+        bd_add_delete_update.add_data_share_the_offer_text_photo_video(text,photo_video,tg_id)
+        bot.delete_state(message.from_user.id, message.chat.id)
+    else:
+        text = message.caption
+        print(text)
+        bot.send_message(message.chat.id, 'Похоже вы отправили не только текст или фото и видео а что то другое, '
+                                          'я могу принимать только текст видео  или текст фото '
+                                          'или просто текст '.format(
+            message.from_user), reply_markup=cancel_share_offer(message))
+        bot.set_state(message.from_user.id, MyStates.share_the_offer, message.chat.id)
 
 
 @bot.message_handler(content_types=['text'])  # Эта штука должны быть в самом низу
@@ -228,7 +260,11 @@ def ostavit_zayavka(message):
     elif message.text == '☎ Полезные контакты':
         pass
     elif message.text == '🔔 Поделиться предложением':
-        pass
+        bot.set_state(message.from_user.id, MyStates.share_the_offer, message.chat.id)
+        bot.send_message(message.chat.id, 'Распишите ваше предложение в подробностях:'
+                                          'Добавьте фотографию если есть'.format(
+            message.from_user), reply_markup=cancel_share_offer(message))
+        bd_add_delete_update.create_offer_onli_tg_id(tg_id=message.from_user.id)
 
 
 

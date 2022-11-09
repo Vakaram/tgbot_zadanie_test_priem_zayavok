@@ -53,6 +53,27 @@ class CreateTableAll:
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL zayavka_tg_users ", error)
 
+    def create_table_share_the_offer(self):
+        try:
+            with self.connection.cursor() as cursor:  # создание таблицы если её нет
+                cursor.execute(
+                    """
+                    CREATE TABLE share_the_offer(
+                        application_id serial, 
+                        tg_id int NOT NULL,
+                        offer varchar(150),
+                        photo_video varchar(150),
+                        filled boolean default FALSE, 
+                        date_create timestamp default CURRENT_TIMESTAMP,
+                        FOREIGN KEY (tg_id) REFERENCES registration_tg_users (tg_id)
+                        );
+                    """
+                )
+                self.connection.commit()  # обязательная штука даже в with
+                print('[INFO] Таблица share_the_offer создана')
+        except (Exception, Error) as error:
+            print("Ошибка при работе с PostgreSQL share_the_offer  ", error)
+
 
 
 
@@ -69,7 +90,7 @@ create_database_all = CreateTableAll(host=host, port=port, user=user, password=p
 # create_database_all.create_table_registration_tg_users()
 # create_database_all.create_table_users_tg_request()
 # create_database_all.create_table_zayavka_tg_users()
-
+create_database_all.create_table_share_the_offer()
 
 
 

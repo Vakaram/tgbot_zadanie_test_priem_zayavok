@@ -45,9 +45,16 @@ def buttons_inlint_requests_step2(message):  # создаю inline knopki для
     return markup
 def buttons_inlint_requests_step3(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn2 = types.InlineKeyboardButton("Назад", callback_data='back_step3')
-    markup.add(btn2, )
+    btn1 = types.InlineKeyboardButton("Назад", callback_data='back_step3')
+    markup.add(btn1, )
     return markup
+
+def cancel_share_offer(message): #делаем инлайн кнопку отмена для предложения предложений.
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("Отмена", callback_data='cancel_share_offer_inline')
+    markup.add(btn1, )
+    return markup
+
 
 
 
