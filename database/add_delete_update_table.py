@@ -134,6 +134,21 @@ class PostgreSQL:
             cursor.execute(sql, (tg_id,))
             self.connection.commit()
 
+    """ Здесь для смены Имени и Телефона"""
+    def rename_user_bd(self,name_surname,tg_id):
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE registration_tg_users SET name_surname = %s WHERE tg_id = %s
+                """
+            cursor.execute(sql, (name_surname,tg_id,))
+            self.connection.commit()
+    def rename_phone_bd(self,phone,tg_id):
+        with self.connection.cursor() as cursor:
+            sql = """    
+                UPDATE registration_tg_users SET phone = %s WHERE tg_id = %s
+                """
+            cursor.execute(sql, (phone,tg_id,))
+            self.connection.commit()
 
 
 
