@@ -23,6 +23,7 @@ def buttons_main_ostavitzayavka_podelitsa_nazad(message):  # просто соз
     return markup
     print('Я дошёл до конца в создание кнопок ЗАЯВКЕ ')
 
+"""Вот тут кнопки для связаться"""
 def buttons_contact(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton("Перезвоните мне", callback_data='call_me_back')
@@ -30,7 +31,13 @@ def buttons_contact(message):  # создаю inline knopki для связат�
     btn3 = types.InlineKeyboardButton("Назад", callback_data='back_from_contact')
     markup.add(btn1, btn2, btn3)
     return markup
-
+def number_check_from_contact(message):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("Да", callback_data='yes_is_mine_phone_from_contact')
+    btn2 = types.InlineKeyboardButton("Оставить номер телефона", callback_data='rename_my_phone_from_contact')
+    markup.add(btn1,btn2 )
+    return markup
+"""Уже другие кнопки """
 def buttons_inline_requests_step1(message):  # создаю inline knopki для связаться
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton("Пропустить", callback_data='miss_step1')
@@ -72,11 +79,6 @@ def cancel_change_name_phone(message): #делаем инлайн кнопку �
     markup.add(btn1, )
     return markup
 
-def number_check_from_contact(message):
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton("Да", callback_data='yes_is_mine_phone_from_contact')
-    btn2 = types.InlineKeyboardButton("Оставить другой номер", callback_data='rename_my_phone_from_contact')
-    markup.add(btn1,btn2 )
-    return markup
+
 
 

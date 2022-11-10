@@ -14,13 +14,13 @@ class PostgreSQL:
         except (Exception, Error) as error:
             print("Ошибка при работе с PostgreSQL", error)
 
-    def add_name_surname(self, tg_id, name_surname):
+    def add_name_surname(self, tg_id,user_name_tg, name_surname):
         with self.connection.cursor() as cursor:
             cursor.execute("""
-                        INSERT INTO registration_tg_users (tg_id, name_surname)
-                        VALUES(%s, %s)
+                        INSERT INTO registration_tg_users (tg_id, user_name_tg, name_surname)
+                        VALUES(%s, %s, %s)
                         """,
-                           (tg_id, name_surname,))
+                           (tg_id,user_name_tg, name_surname,))
             self.connection.commit()
             print('Сохранил имя человека в БД')
 
@@ -134,7 +134,7 @@ class PostgreSQL:
             cursor.execute(sql, (tg_id,))
             self.connection.commit()
 
-    """ Здесь для смены Имени и Телефона"""
+    """ Здесь для смены Имени и Телефона НАСТРОЙКИ"""
     def rename_user_bd(self,name_surname,tg_id):
         with self.connection.cursor() as cursor:
             sql = """    
@@ -160,13 +160,16 @@ class PostgreSQL:
             self.connection.commit()
             return result_phone
 
-
-
-
-
-
-
-
+    """ А тут для кнопки связь по сути только 1 обращение в бд должно быть на запись, и 1 на достать данные"""
+    def add_request_call_me_back(self,tg_id):  # проверка номера телефона в бд, когда пользователь говорит свяжитесь со мной по телефону
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                        INSERT INTO call_me_back (tg_id)
+                        VALUES(%s)
+                        """,
+                           (tg_id,))
+            self.connection.commit()
+            print('Сохранил обращение в таблицу перезвонить  ')
 
 host = '127.0.0.1'
 port = "5432"

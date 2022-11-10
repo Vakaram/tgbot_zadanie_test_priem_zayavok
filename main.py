@@ -5,7 +5,7 @@ from telebot import custom_filters
 from telebot.handler_backends import State, StatesGroup  # States
 from telebot.storage import StateMemoryStorage
 from buttons.buttons import *
-from create_bot import telebot_test
+from create_bot import *
 from database.CREATE_DATABASE import create_database_tg_bot_priyom_zayavok
 from database.add_delete_update_table import PostgreSQL, bd_add_delete_update
 from database.create_table import create_database_all
@@ -13,6 +13,8 @@ from psycopg2 import Error
 import logging
 import re
 import time
+from database.request_models import *
+
 
 
 content_types_all=["text", "audio", "document", "photo", "sticker", "video", "video_note", "voice", "location", "contact",
@@ -34,8 +36,6 @@ create_database_tg_bot_priyom_zayavok()#создаём основную и по�
 # time.sleep(1)
 #
 # create_database_all.create_table_zayavka_tg_users() #зависимая таблица от основной по id
-#
-
 class MyStates(StatesGroup):
     name = State()
     phone = State()
@@ -45,6 +45,8 @@ class MyStates(StatesGroup):
     share_the_offer = State()
     rename_name = State()
     rename_phone = State()
+    talking_to_admin = State()
+
 
 
 
@@ -74,10 +76,11 @@ def name_get(message):
     regular_phone = r'^[А-Я]{1}[а-я]{1,100}\s[А-Я]{1}[а-я]{1,100}$'
     tg_id = message.from_user.id
     name_surname = message.text
+    user_name_tg = message.from_user.username
     if re.match(regular_phone, name_surname) is not None:  # в тру меняем состояние на след дописываем данные в хранилище
         bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         bot.send_message(message.chat.id, 'Введите телефон +7 без пробелов:', parse_mode='html')
-        bd_add_delete_update.add_name_surname(tg_id,name_surname)
+        bd_add_delete_update.add_name_surname(tg_id,user_name_tg,name_surname)
     else:
         bot.set_state(message.from_user.id, MyStates.name, message.chat.id)
         bot.send_message(message.chat.id, 'Имя должно быть Пример Иван Иванов :', parse_mode='html')
@@ -106,10 +109,11 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
         if call.data == 'call_me_back':
             number_phone = bd_add_delete_update.checking_phone_from_contact(tg_id=call.from_user.id)
             print(number_phone)
-            sms_text = 'Это ваш номер телефона? '+'\n' + str(number_phone)
+            sms_text = 'Пользователь это ваш номер ? '+'\n' + str(number_phone)
             bot.send_message(call.message.chat.id,  # создал меню в общем.
                              text=sms_text.format(
                                  call.message.from_user), reply_markup=number_check_from_contact(message=call.message))
+
         elif call.data == 'contact_me_on_chat':
             bot.send_message(call.message.chat.id, ' Я вижу вы нажали Связаться в чате!')
         elif call.data == 'back_from_contact':
@@ -151,21 +155,23 @@ def otveti_na_inline_knopki(call): #важная фишка, не всегда �
             bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
             bot.send_message(call.message.chat.id, 'Вы отменили изменение имени'.
                              format(call.message.from_user), reply_markup=settings_menu(call.message))
-        elif call.data == 'number_check_from_contact':
-            bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
-            bot.send_message(call.message.chat.id, 'Заявка отправлена администрации вам перезвонят'.
-                             format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
+        elif call.data == 'yes_is_mine_phone_from_contact':
+            bot.delete_state(call.from_user.id, call.message.chat.id)# здесь можем делить дальше надо менять состояния
+            bd_add_delete_update.add_request_call_me_back(tg_id=call.from_user.id)
+            tg_id = call.from_user.id
+            all_text = request_all_bd.callback_request_for_group(tg_id)
+            all_text = '⛔' + all_text
+            bot.send_message(id_group_admin,  # создал меню в общем.
+                             text=all_text.format(
+                                 call.message.from_user))
+            bot.delete_state(call.from_user.id, call.message.chat.id)# здесь можем делить дальше надо менять состояния
         elif call.data == 'rename_my_phone_from_contact': # сменить номер из кнопки связаться
             bot.delete_state(call.from_user.id, call.message.chat.id)  # здесь можем делить дальше надо менять состояния
-            bot.send_message(call.message.chat.id, 'Хорошо тогда укажите телефон на который нужно позвонить, и кто возьмёт трубку '.
+            bot.send_message(call.message.chat.id, 'Ок, тогда смените свой номер в настройках'.
                              format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
-            #укажем стейт новый , там примем смс, полность. и запишим его в бд новое
         else:
             bot.send_message(call.message.chat.id, 'Я непонимаю команды, давайте начнём заново'.
                              format(call.message.from_user), reply_markup=buttons_main_menu(call.message))
-
-
-
 
 @bot.message_handler(state=MyStates.application_step1)
 def application_step1(message): #класс,то что спрашиваем и шаг действующий
@@ -208,7 +214,7 @@ def application_step3(message): #класс,то что спрашиваем и 
                          parse_mode='html'.format(
                              message.from_user), reply_markup=buttons_inline_requests_step3(message))
         bot.set_state(message.from_user.id, MyStates.application_step3, message.chat.id)
-    elif message.photo is True or message.video is True:
+    elif message.photo is not None or message.video is not None:
         print("Я внутри 3 шааг ")
         bot.send_message(message.chat.id, 'Жалоба отправлена администрации,можете вызвать меню нажав /start или раскрыть его кнопкой ниже ', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.application_step2, message.chat.id)
@@ -263,10 +269,11 @@ def change_name(message):
     name_surname = message.text
     if re.match(regular_phone,
                 name_surname) is not None:  # в тру меняем состояние на след дописываем данные в хранилище
-        bot.set_state(message.from_user.id, MyStates.phone, message.chat.id)
         bot.send_message(message.chat.id, 'Настройки имени успешно применены'.
                          format(message.from_user), reply_markup=buttons_main_menu(message))
         bd_add_delete_update.rename_user_bd(name_surname,tg_id)
+        bot.delete_state(message.from_user.id, message.chat.id)
+
     else:
         bot.send_message(message.chat.id, 'Имя должно быть Пример Иван Иванов :', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.rename_name, message.chat.id)
@@ -279,11 +286,11 @@ def rename_phone(message):
     tg_id = message.from_user.id
     regular_phone = r'[+][7][0-9]{10}$'
     if re.match(regular_phone, phone) is not None:
-        bd_add_delete_update.rename_phone_bd(phone,tg_id)
         bot.delete_state(message.from_user.id, message.chat.id)
         bot.send_message(message.chat.id,  # создал меню в общем.
                          text="Вы успешно поменяли номер телефона".format(
                              message.from_user), reply_markup=buttons_main_menu(message))
+        bd_add_delete_update.rename_phone_bd(phone,tg_id)
     else:
         bot.send_message(message.chat.id, 'Не подходит телефон надо +7 и всего 11 цифр:', parse_mode='html')
         bot.set_state(message.from_user.id, MyStates.rename_phone, message.chat.id)
@@ -335,12 +342,6 @@ def ostavit_zayavka(message):
 
 
 
-
-
-
-# @bot.message_handler(state=MyStates.svazatsa)
-# def ready_for_answer(message):
-#     bot.send_message(message.chat.id, "Я попал в состояние заявки")
 
 
 
